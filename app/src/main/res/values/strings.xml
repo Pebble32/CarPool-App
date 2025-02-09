@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Car Pool</string>
+    <string name="action_settings">Settings</string>
+    
+    <!-- Login strings -->
+    <string name="login_title">Welcome Back</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="register_prompt">Don\'t have an account? Register here</string>
+    
+    <!-- Ride offer strings -->
+    <string name="ride_offers">Ride Offers</string>
+    
+    <!-- Navigation strings -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus dui nec risus.</string>
+</resources>
