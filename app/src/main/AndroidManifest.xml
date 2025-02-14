@@ -24,7 +24,7 @@
         </activity>
 
         <activity
-            android:name=".activities.RideOfferActivity"
+            android:name=".ui.activities.RideOfferActivity"
             android:exported="false"
             android:theme="@style/Theme.CarPool" />
 

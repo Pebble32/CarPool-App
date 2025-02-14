@@ -1,13 +1,13 @@
-package com.example.carpool.activities;
+package com.example.carpool.ui.activities;
 
 import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.snackbar.Snackbar;
-import com.example.carpool.adapters.RideOfferAdapter;
+import com.example.carpool.ui.adapters.RideOfferAdapter;
 import com.example.carpool.databinding.ActivityRideOfferBinding;
-import com.example.carpool.models.RideOffer;
+import com.example.carpool.data.models.RideOffer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

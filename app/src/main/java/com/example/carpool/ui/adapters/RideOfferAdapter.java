@@ -1,11 +1,11 @@
-package com.example.carpool.adapters;
+package com.example.carpool.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.carpool.databinding.ItemRideOfferBinding;
-import com.example.carpool.models.RideOffer;
+import com.example.carpool.data.models.RideOffer;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
