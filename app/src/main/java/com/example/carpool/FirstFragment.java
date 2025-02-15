@@ -17,6 +17,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.carpool.databinding.FragmentFirstBinding;
 
+/**
+ * FirstFragment is a subclass of Fragment that represents the first screen of the CarPool app.
+ * It handles the view creation, API call to fetch all offers, and navigation to the second fragment.
+ */
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
