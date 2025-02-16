@@ -11,10 +11,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.carpool.databinding.FragmentSecondBinding;
 
-/**
- * SecondFragment is a subclass of Fragment that represents the second screen in the application.
- * It uses view binding to interact with the UI elements and handles navigation to the first fragment.
- */
 public class SecondFragment extends Fragment {
 
     private FragmentSecondBinding binding;

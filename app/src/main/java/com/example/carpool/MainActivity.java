@@ -9,19 +9,6 @@ import com.example.carpool.activities.RideOfferActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.example.carpool.databinding.ActivityMainBinding;
 
-/**
- * MainActivity is the entry point of the CarPool app. It handles user login functionality.
- * It uses View Binding to interact with the UI elements.
- * 
- * Constants:
- * - TEST_EMAIL: A test email for login validation.
- * - TEST_PASSWORD: A test password for login validation.
- * 
- * Methods:
- * - onCreate(Bundle savedInstanceState): Initializes the activity, sets up the view binding, and sets the login button click listener.
- * - validateInput(String email, String password): Validates the email and password input fields.
- * - attemptLogin(String email, String password): Attempts to log in with the provided email and password. If successful, navigates to RideOfferActivity. Otherwise, shows an error message.
- */
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private static final String TEST_EMAIL = "test@test.com";
