@@ -13,25 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * RideOfferActivity is an activity that displays a list of ride offers and allows users to add new ride offers.
- * It uses a RecyclerView to display the ride offers and a FloatingActionButton (FAB) to trigger the add ride offer functionality.
- *
- * This activity performs the following functions:
- * 
- * Initializes the view binding and sets the content view.
- * Sets up the RecyclerView with a LinearLayoutManager and a RideOfferAdapter.
- * Populates the RecyclerView with dummy ride offers for demonstration purposes.
- * Sets up a click listener on the FAB to handle adding new ride offers.
- * 
- *
- * Note: The add ride offer functionality is currently not implemented and shows a Snackbar message when the FAB is clicked.
- *
- * @see AppCompatActivity
- * @see ActivityRideOfferBinding
- * @see RideOfferAdapter
- * @see RideOffer
- */
 public class RideOfferActivity extends AppCompatActivity {
     private ActivityRideOfferBinding binding;
     private RideOfferAdapter rideOfferAdapter;

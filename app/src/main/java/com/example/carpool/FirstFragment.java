@@ -1,11 +1,5 @@
 package com.example.carpool;
 
-import com.example.carpool.network.ApiService; 
-import com.example.carpool.network.RetrofitClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import java.util.List;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,33 +11,19 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.carpool.databinding.FragmentFirstBinding;
 
-/**
- * FirstFragment is a subclass of Fragment that represents the first screen of the CarPool app.
- * It handles the view creation, API call to fetch all offers, and navigation to the second fragment.
- */
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_first, container, false);
-        ApiService api = RetrofitClient.getApi();
-        api.getAllOffers().enqueue(new Callback<List<Object>>() {
-            @Override
-            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    // TODO: Handle API data 
-                }
-            }
+    public View onCreateView(
+            @NonNull LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState
+    ) {
 
-            @Override
-            public void onFailure(Call<List<Object>> call, Throwable t) {
-                // TODO:Show error message
-            }
-        });
-        return view;
+        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
