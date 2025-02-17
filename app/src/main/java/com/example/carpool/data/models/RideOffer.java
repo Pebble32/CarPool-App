@@ -1,4 +1,4 @@
-package com.example.carpool.models;
+package com.example.carpool.data.models;
 
 import java.time.LocalDateTime;
 
