@@ -39,8 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:hint="Departure time"
-            android:inputType="datetime" />
+            android:hint="Departure time" />
 
         <EditText
             android:id="@+id/editAvailableSeats"

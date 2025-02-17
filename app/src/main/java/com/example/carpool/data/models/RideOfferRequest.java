@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 public class RideOfferRequest {
     private String startLocation;
     private String endLocation;
-    private LocalDateTime departureTime;
+    private String departureTime;
     private Integer availableSeats;
 
-    public RideOfferRequest(String startLocation, String endLocation, LocalDateTime departureTime, Integer availableSeats) {
+    public RideOfferRequest(String startLocation, String endLocation, String departureTime, Integer availableSeats) {
         this.startLocation = startLocation;
         this.endLocation = endLocation;
         this.departureTime = departureTime;
@@ -23,7 +23,7 @@ public class RideOfferRequest {
         return endLocation;
     }
 
-    public LocalDateTime getDepartureTime() {
+    public String getDepartureTime() {
         return departureTime;
     }
 

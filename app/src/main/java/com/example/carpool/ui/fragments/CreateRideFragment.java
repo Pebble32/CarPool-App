@@ -58,18 +58,17 @@ public class CreateRideFragment extends Fragment {
     private void onClickCreate() {
         String startLocation = editStartLocation.getText().toString();
         String endLocation = editEndLocation.getText().toString();
-        String departureTimeString = editDepartureTime.getText().toString();
+        String departureTime = editDepartureTime.getText().toString();
         String availableSeatsString = editAvailableSeats.getText().toString();
 
-        if (TextUtils.isEmpty(startLocation) || TextUtils.isEmpty(endLocation) || TextUtils.isEmpty(departureTimeString)
+        if (TextUtils.isEmpty(startLocation) || TextUtils.isEmpty(endLocation) || TextUtils.isEmpty(departureTime)
                 || TextUtils.isEmpty(availableSeatsString)) {
             Toast.makeText(getContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        LocalDateTime departureTime;
         try {
-            departureTime = LocalDateTime.parse(departureTimeString);
+            LocalDateTime.parse(departureTime);
         } catch (DateTimeParseException e) {
             Toast.makeText(getContext(), "Date and time invalid", Toast.LENGTH_SHORT).show();
             return;
@@ -108,5 +107,7 @@ public class CreateRideFragment extends Fragment {
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+
     }
 }

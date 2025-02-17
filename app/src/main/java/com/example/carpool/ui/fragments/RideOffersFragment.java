@@ -25,7 +25,7 @@ import retrofit2.Response;
 public class RideOffersFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private Button buttonLoadMore;
+    private Button buttonLoadMore, buttonGoToCreate;
     private RideOffersAdapter adapter;
     private int currentPage = 0;
     private int totalPages = 1; // initial assumption
@@ -40,6 +40,7 @@ public class RideOffersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_ride_offers, container, false);
         recyclerView = view.findViewById(R.id.recyclerViewRideOffers);
         buttonLoadMore = view.findViewById(R.id.buttonLoadMore);
+        buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new RideOffersAdapter(new ArrayList<>());
@@ -48,6 +49,13 @@ public class RideOffersFragment extends Fragment {
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
 
         buttonLoadMore.setOnClickListener(v -> loadRideOffers());
+
+        buttonGoToCreate.setOnClickListener(v -> {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new CreateRideFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
 
         loadRideOffers();
 
