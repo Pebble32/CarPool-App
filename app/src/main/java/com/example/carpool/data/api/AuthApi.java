@@ -12,5 +12,5 @@ public interface AuthApi {
     Call<ResponseBody> authenticate(@Body AuthenticationRequest request);
 
     @POST("auth/register")
-    Call<ResponseBody> register(@Body com.example.carpool.data.model.RegisterRequest request);
+    Call<ResponseBody> register(@Body com.example.carpool.data.models.RegisterRequest request);
 }

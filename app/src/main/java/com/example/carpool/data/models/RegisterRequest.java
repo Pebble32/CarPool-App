@@ -1,4 +1,4 @@
-package com.example.carpool.data.model;
+package com.example.carpool.data.models;
 
 public class RegisterRequest {
     private String email;

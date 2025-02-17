@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment;
 import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
-import com.example.carpool.data.model.RegisterRequest;
+import com.example.carpool.data.models.RegisterRequest;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
