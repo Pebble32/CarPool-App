@@ -6,10 +6,12 @@ public class RideOfferResponse {
     private String endLocation;
     private String departureTime; // formatted string
     public String creatorEmail;
+    private RideStatus status;
 
     public Long getId() { return id; }
     public String getStartLocation() { return startLocation; }
     public String getEndLocation() { return endLocation; }
     public String getDepartureTime() { return departureTime; }
     public String getCreatorEmail() { return creatorEmail; }
+    public RideStatus getStatus() { return status; }
 }
