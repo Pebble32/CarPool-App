@@ -1,5 +1,8 @@
 package com.example.carpool.ui.fragments;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +21,10 @@ import com.example.carpool.data.models.PageResponse;
 import com.example.carpool.data.models.RideOfferResponse;
 import com.example.carpool.ui.adapters.RideOffersAdapter;
 import java.util.ArrayList;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 public class RideOffersFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -31,6 +34,7 @@ public class RideOffersFragment extends Fragment {
     private int totalPages = 1; // initial assumption
     private final int PAGE_SIZE = 10;
     private RideOfferApi rideOfferApi;
+    private String currentUserEmail;
 
     @Nullable
     @Override
@@ -41,6 +45,9 @@ public class RideOffersFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerViewRideOffers);
         buttonLoadMore = view.findViewById(R.id.buttonLoadMore);
         buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
+
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        currentUserEmail = preferences.getString("email", "");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new RideOffersAdapter(new ArrayList<>());
@@ -85,5 +92,52 @@ public class RideOffersFragment extends Fragment {
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onEditClick(RideOfferResponse rideOffer) {
+
+        Fragment editFragment = EditRideFragment.newInstance(rideOffer);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, editFragment)
+                .addToBackStack(null)
+                .commit();
+        
+    }
+
+    @Override
+    public void onDeleteClick(RideOfferResponse rideOffer) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Ride Offer")
+                .setMessage("Are you sure you want to delete this ride offer?")
+                .setPositiveButton("Yes", (dialog, which) -> deleteRideOffer(rideOffer.getId()))
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void deleteRideOffer(Long rideId){
+        rideOfferApi.deleteRideOffer(rideId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    Toast.makeText(getContext(), "Ride offer deleted successfully", Toast.LENGTH_SHORT).show();
+                    resetAndReloadOffers();
+                } else {
+                    Toast.makeText(getContext(), "Failed to delete ride offer: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void resetAndReloadOffers(){
+        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, this);
+        recyclerView.setAdapter(adapter);
+        currentPage = 0;
+        loadRideOffers();
     }
 }
