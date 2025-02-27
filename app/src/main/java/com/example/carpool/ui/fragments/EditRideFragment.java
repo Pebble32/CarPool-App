@@ -193,9 +193,15 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
     }
 
     private void updateRideOffer(EditRideOfferRequest request){
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Updating ride offer...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         rideOfferApi.updateRideOffer(request).enqueue(new Callback<RideOfferResponse>(){
             @Override
             public void onResponse(Call<RideOfferResponse> call, Response<RideOfferResponse> response){
+                progressDialog.dismiss();
                 if(response.isSuccessful() && response.body() != null){
                     Toast.makeText(getContext(), "Ride offer updated successfully", Toast.LENGTH_SHORT).show();
                     getParentFragmentManager().popBackStack();
@@ -206,6 +212,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
 
             @Override
             public void onFailure(Call<RideOfferResponse> call, Throwable t){
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), "Error :" + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

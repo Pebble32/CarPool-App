@@ -116,9 +116,16 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
     }
 
     private void deleteRideOffer(Long rideId){
+
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Deleting ride offer...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         rideOfferApi.deleteRideOffer(rideId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
                 if(response.isSuccessful()){
                     Toast.makeText(getContext(), "Ride offer deleted successfully", Toast.LENGTH_SHORT).show();
                     resetAndReloadOffers();
@@ -129,6 +136,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
