@@ -7,11 +7,13 @@ public class RideOfferResponse {
     private String departureTime; // formatted string
     public String creatorEmail;
     private RideStatus status;
+    private Integer availableSeats;
 
     public Long getId() { return id; }
     public String getStartLocation() { return startLocation; }
     public String getEndLocation() { return endLocation; }
     public String getDepartureTime() { return departureTime; }
     public String getCreatorEmail() { return creatorEmail; }
-    public RideStatus getStatus() { return status; }
+    public RideStatus getRideStatus() { return status; }
+    public Integer getAvailableSeats() { return availableSeats; }
 }

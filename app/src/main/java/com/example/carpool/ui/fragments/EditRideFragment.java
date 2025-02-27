@@ -109,7 +109,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
 
     private void onClickEditDepartureDate(){
         DatePickerFragment datePickerFragment = new DatePickerFragment();
-        Bundle args = new Bunlde();
+        Bundle args = new Bundle();
         args.putInt("year", year);
         args.putInt("month", month);
         args.putInt("day", day);
@@ -198,7 +198,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
             public void onResponse(Call<RideOfferResponse> call, Response<RideOfferResponse> response){
                 if(response.isSuccessful() && response.body() != null){
                     Toast.makeText(getContext(), "Ride offer updated successfully", Toast.LENGTH_SHORT).show();
-                    getParentFragementManager().popBackStack();
+                    getParentFragmentManager().popBackStack();
                 } else {
                     Toast.makeText(getContext(), "Failed to update ride offer", Toast.LENGTH_SHORT).show();
                 }
