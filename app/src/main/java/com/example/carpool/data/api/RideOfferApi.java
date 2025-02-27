@@ -10,6 +10,9 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.PUT;
+import retrofit2.http.DELETE;
+import retrofit2.http.Path;
 
 public interface RideOfferApi {
     @GET("offers/all/paginated")
@@ -22,4 +25,20 @@ public interface RideOfferApi {
     Call<ResponseBody> createRideOffer(
             @Body RideOfferRequest rideOfferRequest
     );
+
+    @PUT("offers/update")
+        Call<RideOfferResponse> updateRideOffer(
+                @Body RideOfferRequest rideOfferRequest
+        );
+
+    @DELETE("offers/details/{id}")
+        Call<ResponseBody> deleteRideOffer(
+                @Path("id") Long id
+        );
+
+     @GET("offers/details/{id}")
+        Call<RideOfferResponse> getRideOfferDetails(
+                @Query("id") Long id
+        );
+     
 }
