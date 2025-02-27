@@ -42,7 +42,7 @@ public class RideOffersFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ride_offers, container, false);
-        recyclerView = view.findViewById(R.id.recyclerViewRideOffers);
+        recyclerView = view.findViewById(R.id.ride_offers_recycler_view);
         buttonLoadMore = view.findViewById(R.id.buttonLoadMore);
         buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
 
