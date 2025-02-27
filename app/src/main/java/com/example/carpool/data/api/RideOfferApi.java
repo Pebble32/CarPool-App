@@ -3,6 +3,7 @@ package com.example.carpool.data.api;
 import com.example.carpool.data.models.PageResponse;
 import com.example.carpool.data.models.RideOfferRequest;
 import com.example.carpool.data.models.RideOfferResponse;
+import com.example.carpool.data.models.EditRideOfferRequest;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

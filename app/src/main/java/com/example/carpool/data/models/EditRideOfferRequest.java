@@ -22,7 +22,7 @@ public class EditRideOfferRequest {
 
     //Getters and setters
     public Long getId() {
-        return id;
+        return rideId;
     }
 
     public void setId(Long rideId){
@@ -68,5 +68,5 @@ public class EditRideOfferRequest {
     public void setRideStatus(String rideStatus) {
         this.rideStatus = rideStatus;
     }
-    
+
 }
