@@ -25,7 +25,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-public class RideOffersFragment extends Fragment {
+public class RideOffersFragment extends Fragment implements RideOffersAdapter.OnRideOfferActionListener {
 
     private RecyclerView recyclerView;
     private Button buttonLoadMore, buttonGoToCreate;
