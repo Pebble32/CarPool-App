@@ -205,7 +205,9 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
                 progressDialog.dismiss();
                 if(response.isSuccessful() && response.body() != null){
                     Toast.makeText(getContext(), "Ride offer updated successfully", Toast.LENGTH_SHORT).show();
-                    getParentFragmentManager().popBackStack();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new RideOffersFragment())
+                    .commit();
                 } else {
                     Toast.makeText(getContext(), "Failed to update ride offer", Toast.LENGTH_SHORT).show();
                 }
