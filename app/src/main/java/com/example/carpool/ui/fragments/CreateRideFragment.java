@@ -171,9 +171,10 @@ public class CreateRideFragment extends Fragment implements DatePickerFragment.D
                     Toast.makeText(getContext(), "Ride created successfully!", Toast.LENGTH_SHORT).show();
                     // Navigate back to the RideOffersFragment by replacing the current fragment
                     if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new RideOffersFragment())
-                        .commit();
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, new RideOffersFragment())
+                                .commit();
                     }
                 } else {
                     Toast.makeText(getContext(), "Ride creation failed: " + response.code(), Toast.LENGTH_SHORT).show();
