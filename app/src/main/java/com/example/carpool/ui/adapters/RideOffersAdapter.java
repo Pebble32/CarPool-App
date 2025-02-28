@@ -56,12 +56,15 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
         holder.departureTime.setText(offer.getDepartureTime());
         holder.availableSeats.setText("Available seats: " + offer.getAvailableSeats());
         
+        // Check if the current user is the creator of the ride offer
         if(rideOffers.get(position).getCreatorEmail() != null && 
            rideOffers.get(position).getCreatorEmail().equals(currentUserEmail)) {
+            // Show edit and delete buttons if the current user is the creator
             holder.buttonLayout.setVisibility(View.VISIBLE);
             holder.editButton.setOnClickListener(v -> listener.onEditClick(rideOffers.get(position)));
             holder.deleteButton.setOnClickListener(v -> listener.onDeleteClick(rideOffers.get(position)));
         } else {
+            // Hide edit and delete buttons if the current user is not the creator
             holder.buttonLayout.setVisibility(View.GONE);
         }
     }

@@ -79,10 +79,12 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
     }
 
     private void loadRideOffers() {
+        // Check if there are more pages to load
         if (currentPage >= totalPages) {
             buttonLoadMore.setVisibility(View.GONE);
             return;
         }
+        // Make an API call to get paginated ride offers
         rideOfferApi.getPaginatedOffers(currentPage, PAGE_SIZE).enqueue(new Callback<PageResponse<RideOfferResponse>>() {
             @Override
             public void onResponse(Call<PageResponse<RideOfferResponse>> call, Response<PageResponse<RideOfferResponse>> response) {
@@ -105,7 +107,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
 
     @Override
     public void onEditClick(RideOfferResponse rideOffer) {
-
+        // Navigate to the EditRideFragment with the selected ride offer
         Fragment editFragment = EditRideFragment.newInstance(rideOffer);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, editFragment)
@@ -116,6 +118,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
 
     @Override
     public void onDeleteClick(RideOfferResponse rideOffer) {
+        // Show a confirmation dialog before deleting the ride offer
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Ride Offer")
                 .setMessage("Are you sure you want to delete this ride offer?")
@@ -126,11 +129,13 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
 
     private void deleteRideOffer(Long rideId){
 
+        // Show a progress dialog while deleting the ride offer
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Deleting ride offer...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        // Make an API call to delete the ride offer
         rideOfferApi.deleteRideOffer(rideId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -152,6 +157,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
     }
 
     private void resetAndReloadOffers(){
+        // Reset the adapter and reload the ride offers
         adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, this);
         recyclerView.setAdapter(adapter);
         currentPage = 0;

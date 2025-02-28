@@ -85,21 +85,26 @@ public class LoginFragment extends Fragment {
     }
 
     private void attemptLogin() {
+        // Collect user input from EditText fields
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
+        // Validate that both fields are filled
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Create an AuthenticationRequest object with the collected data
         AuthenticationRequest request = new AuthenticationRequest(email, password);
+        
+        // Make an API call to authenticate the user
         authApi.authenticate(request).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-                    // Navigate to RideOffersFragment (the main page)
+                    // Save the user's email in SharedPreferences and navigate to RideOffersFragment
                     if (getActivity() != null) {
                         SharedPreferences sp = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                         sp.edit().putString("email", email).apply();

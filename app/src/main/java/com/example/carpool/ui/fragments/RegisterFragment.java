@@ -72,6 +72,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void registerUser() {
+        // Collect user input from EditText fields
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
         String firstname = editTextFirstName.getText().toString().trim();
@@ -79,13 +80,17 @@ public class RegisterFragment extends Fragment {
         String phoneNumber = editTextPhone.getText().toString().trim();
         String profilePicture = editTextProfilePicture.getText().toString().trim();
 
+        // Validate that all required fields are filled
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(firstname)
                 || TextUtils.isEmpty(lastname) || TextUtils.isEmpty(phoneNumber)) {
             Toast.makeText(getContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Create a RegisterRequest object with the collected data
         RegisterRequest request = new RegisterRequest(email, password, firstname, lastname, phoneNumber, profilePicture);
+        
+        // Make an API call to register the user
         authApi.register(request).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
