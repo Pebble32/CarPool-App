@@ -6,6 +6,10 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
+/**
+ * AuthApi interface provides methods for user authentication and registration.
+ * It defines endpoints for authenticating users and registering new users.
+ */
 public interface AuthApi {
     // This should /api/v1/auth/X
     @POST("auth/authenticate")

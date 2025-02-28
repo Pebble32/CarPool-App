@@ -41,5 +41,38 @@
              android:textAppearance="?attr/textAppearanceBody2"
              android:textColor="@color/gray"
              android:layout_marginTop="8dp" />
+
+         
+         <TextView
+             android:id="@+id/textViewAvailableSeats"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Available seats: 0"
+             android:textAppearance="?attr/textAppearanceBody2"
+             android:layout_marginTop="4dp" />
+
+        
+         <LinearLayout
+             android:id="@+id/buttonLayout"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+             android:gravity="end"
+             android:visibility="gone"
+             android:layout_marginTop="8dp">
+
+             <Button
+                 android:id="@+id/editButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="@string/edit_button" />
+
+             <Button
+                 android:id="@+id/deleteButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="@string/delete_button"
+                 android:layout_marginStart="8dp" />
+         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

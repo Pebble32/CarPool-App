@@ -15,7 +15,7 @@
          android:layout_marginBottom="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-         android:id="@+id/recyclerViewRideOffers"
+         android:id="@+id/ride_offers_recycler_view"
          android:layout_width="match_parent"
          android:layout_height="0dp"
          android:layout_weight="1" />
