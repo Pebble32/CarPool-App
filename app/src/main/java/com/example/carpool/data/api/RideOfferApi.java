@@ -27,7 +27,7 @@ public interface RideOfferApi {
             @Body RideOfferRequest rideOfferRequest
     );
 
-    @PUT("offers/update")
+    @PUT("offers/details")
         Call<RideOfferResponse> updateRideOffer(
                 @Body EditRideOfferRequest editRideOfferRequest
         );
