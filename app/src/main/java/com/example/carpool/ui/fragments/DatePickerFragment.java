@@ -8,6 +8,12 @@ import android.widget.DatePicker;
 
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * A fragment that displays a date picker dialog.
+ * This fragment implements the {@link DatePickerDialog.OnDateSetListener} interface
+ * to handle the date selection event.
+ *
+ */
 public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 

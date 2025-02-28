@@ -31,6 +31,31 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * CreateRideFragment is a Fragment that allows users to create a new ride offer.
+ * It implements DatePickerFragment.DatePickerListener and TimePickerFragment.TimePickerListener
+ * to handle date and time picking for the ride departure.
+ * 
+ * Fields:
+ * - editStartLocation: EditText for entering the start location of the ride.
+ * - editEndLocation: EditText for entering the end location of the ride.
+ * - editDepartureDate: EditText for displaying the selected departure date.
+ * - editDepartureTime: EditText for displaying the selected departure time.
+ * - editAvailableSeats: EditText for entering the number of available seats.
+ * - buttonCreate: Button to create the ride offer.
+ * - buttonEditDepartureDate: Button to open the date picker dialog.
+ * - buttonEditDepartureTime: Button to open the time picker dialog.
+ * - rideOfferApi: API interface for creating ride offers.
+ * - year, month, day, hourOfDay, minute: Variables to store the selected date and time.
+ * 
+ * Methods:
+ * - onCreateView: Initializes the view and sets up click listeners for buttons.
+ * - onClickEditDepartureDate: Opens the date picker dialog.
+ * - onDatePicked: Callback method for when a date is picked from the date picker.
+ * - onClickEditDepartureTime: Opens the time picker dialog.
+ * - onTimePicked: Callback method for when a time is picked from the time picker.
+ * - onClickCreate: Validates input fields and sends a request to create a new ride offer.
+ */
 public class CreateRideFragment extends Fragment implements DatePickerFragment.DatePickerListener, TimePickerFragment.TimePickerListener {
 
     private EditText editStartLocation, editEndLocation, editDepartureDate, editDepartureTime, editAvailableSeats;

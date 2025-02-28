@@ -23,6 +23,29 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * RegisterFragment is responsible for handling user registration.
+ * It provides a user interface for entering registration details and
+ * communicates with the authentication API to register a new user.
+ * 
+ * Fields:
+ * - editTextEmail: EditText for entering the user's email.
+ * - editTextPassword: EditText for entering the user's password.
+ * - editTextFirstName: EditText for entering the user's first name.
+ * - editTextLastName: EditText for entering the user's last name.
+ * - editTextPhone: EditText for entering the user's phone number.
+ * - editTextProfilePicture: EditText for entering the user's profile picture URL.
+ * - buttonRegister: Button to trigger the registration process.
+ * - authApi: Instance of AuthApi for making network requests.
+ * 
+ * Methods:
+ * - onCreateView: Inflates the fragment's layout and initializes UI components.
+ * - registerUser: Collects user input, validates it, and sends a registration request to the server.
+ * 
+ * Usage:
+ * This fragment should be used in the context of an activity that supports fragment transactions.
+ * It requires a layout file named fragment_register with the appropriate EditText and Button views.
+ */
 public class RegisterFragment extends Fragment {
 
     private EditText editTextEmail, editTextPassword, editTextFirstName, editTextLastName, editTextPhone, editTextProfilePicture;

@@ -29,6 +29,11 @@ import android.app.ProgressDialog;
 
 
 
+/**
+ * RideOffersFragment is responsible for displaying a list of ride offers in a RecyclerView.
+ * It allows users to load more offers, create a new ride offer, edit existing offers, and delete offers.
+ * This fragment implements the RideOffersAdapter.OnRideOfferActionListener interface to handle user actions on ride offers.
+ */
 public class RideOffersFragment extends Fragment implements RideOffersAdapter.OnRideOfferActionListener {
 
     private RecyclerView recyclerView;

@@ -15,6 +15,10 @@ import com.example.carpool.data.models.RideOfferResponse;
 
 import java.util.List;
 
+/**
+ * Adapter class for displaying ride offers in a RecyclerView.
+ * This adapter binds ride offer data to the views in each item of the RecyclerView.
+ */
 public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.ViewHolder> {
     private final List<RideOfferResponse> rideOffers;
     private final OnRideOfferActionListener listener;

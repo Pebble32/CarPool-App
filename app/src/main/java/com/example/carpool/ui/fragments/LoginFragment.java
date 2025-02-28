@@ -25,6 +25,31 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * LoginFragment handles the user login functionality.
+ * It provides UI elements for the user to input their email and password,
+ * and buttons to either attempt login or navigate to the registration screen.
+ * 
+ * UI Elements:
+ * - EditText editTextEmail: Input field for the user's email.
+ * - EditText editTextPassword: Input field for the user's password.
+ * - Button buttonLogin: Button to trigger the login attempt.
+ * - Button buttonGoToRegister: Button to navigate to the registration screen.
+ * 
+ * Dependencies:
+ * - AuthApi authApi: Interface for authentication API calls.
+ * 
+ * Methods:
+ * - onCreateView: Initializes the UI elements and sets up click listeners for the buttons.
+ * - attemptLogin: Validates the input fields and makes an API call to authenticate the user.
+ * 
+ * API Calls:
+ * - authApi.authenticate: Sends the user's email and password to the server for authentication.
+ * 
+ * Navigation:
+ * - On successful login, navigates to the RideOffersFragment.
+ * - On clicking the registration button, navigates to the RegisterFragment.
+ */
 public class LoginFragment extends Fragment {
 
     private EditText editTextEmail;

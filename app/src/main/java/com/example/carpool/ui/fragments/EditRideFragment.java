@@ -31,6 +31,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
+/**
+ * EditRideFragment is a Fragment that allows users to edit an existing ride offer.
+ * It implements DatePickerFragment.DatePickerListener and TimePickerFragment.TimePickerListener
+ * to handle date and time picking events.
+ * 
+ * This fragment provides UI elements for editing the start location, end location, departure date,
+ * departure time, and available seats of a ride offer. It also includes buttons for updating the ride offer
+ * and for editing the departure date and time.
+ * 
+ * Methods:
+ * - newInstance(RideOfferResponse rideOffer): Creates a new instance of EditRideFragment with the provided ride offer details.
+ * - onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState): Inflates the fragment's layout and initializes UI elements.
+ * - populateFields(): Populates the UI fields with the ride offer details passed in the fragment's arguments.
+ * - onClickEditDepartureDate(): Opens a DatePickerFragment to allow the user to select a new departure date.
+ * - onDatePicked(int year, int month, int day): Handles the date picked event from the DatePickerFragment.
+ * - onClickEditDepartureTime(): Opens a TimePickerFragment to allow the user to select a new departure time.
+ * - onTimePicked(int hourOfDay, int minute): Handles the time picked event from the TimePickerFragment.
+ * - onClickUpdate(): Validates the input fields and sends a request to update the ride offer.
+ * - updateRideOffer(EditRideOfferRequest request): Sends a network request to update the ride offer and handles the response.
+ */
 public class EditRideFragment extends Fragment implements DatePickerFragment.DatePickerListener, TimePickerFragment.TimePickerListener{
 
     private EditText editStartLocation, editEndLocation, editDepartureDate, editDepartureTime, editAvailableSeats;
@@ -60,6 +80,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_ride, container, false);
 
+        // Initialize UI elements
         editStartLocation = view.findViewById(R.id.editStartLocation);
         editEndLocation = view.findViewById(R.id.editEndLocation);
         editDepartureDate = view.findViewById(R.id.editDepartureDate);
@@ -69,10 +90,12 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         buttonEditDepartureDate = view.findViewById(R.id.buttonEditDepartureDate);
         buttonEditDepartureTime = view.findViewById(R.id.buttonEditDepartureTime);
 
+        // Initialize API client
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
 
         populateFields();
 
+        // Set click listeners for buttons
         buttonUpdate.setOnClickListener(v -> onClickUpdate());
         buttonEditDepartureDate.setOnClickListener(v -> onClickEditDepartureDate());
         buttonEditDepartureTime.setOnClickListener(v -> onClickEditDepartureTime());
@@ -82,22 +105,21 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
 
     private void populateFields(){
         if (getArguments() != null){
+            // Populate fields with existing ride offer details
             editStartLocation.setText(getArguments().getString("start_location"));
             editEndLocation.setText(getArguments().getString("end_location"));
 
             String departureTimeString = getArguments().getString("departure_time");
 
             try {
-
+                // Parse and set departure date and time
                 LocalDateTime dateTime = LocalDateTime.parse(departureTimeString, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-
                 editDepartureDate.setText(dateTime.toLocalDate().toString());
                 editDepartureTime.setText(dateTime.toLocalTime().toString());
 
                 year = dateTime.getYear();
                 month = dateTime.getMonthValue() - 1;
                 day = dateTime.getDayOfMonth();
-
                 hourOfDay = dateTime.getHour();
                 minute = dateTime.getMinute();
             } catch (Exception e){
@@ -109,6 +131,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
     }
 
     private void onClickEditDepartureDate(){
+        // Open date picker dialog with current date values
         DatePickerFragment datePickerFragment = new DatePickerFragment();
         Bundle args = new Bundle();
         args.putInt("year", year);
@@ -121,6 +144,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
 
     @Override
     public void onDatePicked(int year, int month, int day) {
+        // Update date fields with selected date
         this.year = year;
         this.month = month;
         this.day = day;
@@ -130,6 +154,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
     }
 
     private void onClickEditDepartureTime(){
+        // Open time picker dialog with current time values
         TimePickerFragment timePickerFragment = new TimePickerFragment();
         Bundle args = new Bundle();
         args.putInt("hour", hourOfDay);
@@ -141,6 +166,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
 
     @Override
     public void onTimePicked(int hourOfDay, int minute) {
+        // Update time fields with selected time
         this.hourOfDay = hourOfDay;
         this.minute = minute;
 
@@ -149,6 +175,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
     }
 
     private void onClickUpdate(){
+        // Validate input fields
         String startLocation = editStartLocation.getText().toString().trim();
         String endLocation = editEndLocation.getText().toString().trim();
         String departureDate = editDepartureDate.getText().toString().trim();
@@ -175,6 +202,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         String departureDateTime;
 
         try {
+            // Parse and format departure date and time
             LocalDate date = LocalDate.parse(departureDate);
             LocalTime time = LocalTime.parse(departureTime);
             LocalDateTime dateTime = LocalDateTime.of(date, time);
@@ -187,6 +215,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         Long rideId = getArguments().getLong("ride_id");
         String status = getArguments().getString("status", "AVAILABLE");
 
+        // Create request object
         EditRideOfferRequest request = new EditRideOfferRequest(
             rideId, startLocation, endLocation, departureDateTime, availableSeats, status);
         
@@ -194,11 +223,13 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
     }
 
     private void updateRideOffer(EditRideOfferRequest request){
+        // Show progress dialog
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Updating ride offer...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        // Send network request to update ride offer
         rideOfferApi.updateRideOffer(request).enqueue(new Callback<RideOfferResponse>(){
             @Override
             public void onResponse(Call<RideOfferResponse> call, Response<RideOfferResponse> response){
