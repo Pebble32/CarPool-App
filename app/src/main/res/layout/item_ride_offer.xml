@@ -11,68 +11,68 @@
     app:strokeColor="@color/accentColor">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="vertical"
+         android:padding="16dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+         <TextView
+             android:id="@+id/textViewStartLocation"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Start Location"
+             android:textAppearance="?attr/textAppearanceSubtitle1"
+             android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/textViewStartLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start Location"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textColor="@color/black"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/buttonLayout" />
+         <TextView
+             android:id="@+id/textViewEndLocation"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="End Location"
+             android:textAppearance="?attr/textAppearanceSubtitle1"
+             android:textColor="@color/black"
+             android:layout_marginTop="4dp" />
 
-            <LinearLayout
-                android:id="@+id/buttonLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_alignParentEnd="true">
+         <TextView
+             android:id="@+id/textViewDepartureTime"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Departure Time"
+             android:textAppearance="?attr/textAppearanceBody2"
+             android:textColor="@color/gray"
+             android:layout_marginTop="8dp" />
 
-                <ImageButton
-                    android:id="@+id/buttonEditRide"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Edit Ride"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_edit" />
+         
+         <TextView
+             android:id="@+id/textViewAvailableSeats"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Available seats: 0"
+             android:textAppearance="?attr/textAppearanceBody2"
+             android:layout_marginTop="4dp" />
 
-                <ImageButton
-                    android:id="@+id/buttonDeleteRide"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Delete Ride"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_delete" />
-            </LinearLayout>
-        </RelativeLayout>
+        
+         <LinearLayout
+             android:id="@+id/buttonLayout"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+             android:gravity="end"
+             android:visibility="gone"
+             android:layout_marginTop="8dp">
 
-        <TextView
-            android:id="@+id/textViewEndLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="End Location"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:textColor="@color/black"
-            android:layout_marginTop="4dp" />
+             <Button
+                 android:id="@+id/editButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="@string/edit_button" />
 
-        <TextView
-            android:id="@+id/textViewDepartureTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Departure Time"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="@color/gray"
-            android:layout_marginTop="8dp" />
+             <Button
+                 android:id="@+id/deleteButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="@string/delete_button"
+                 android:layout_marginStart="8dp" />
+         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

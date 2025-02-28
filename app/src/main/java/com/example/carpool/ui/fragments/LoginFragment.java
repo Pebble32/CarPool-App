@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,6 +76,8 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
                     // Navigate to RideOffersFragment (the main page)
                     if (getActivity() != null) {
+                        SharedPreferences sp = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                        sp.edit().putString("email", email).apply();
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, new RideOffersFragment())
                                 .commit();

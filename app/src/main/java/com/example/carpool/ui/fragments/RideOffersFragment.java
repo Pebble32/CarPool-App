@@ -25,6 +25,10 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.app.ProgressDialog;
+
+
+
 public class RideOffersFragment extends Fragment implements RideOffersAdapter.OnRideOfferActionListener {
 
     private RecyclerView recyclerView;
@@ -47,10 +51,10 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        currentUserEmail = preferences.getString("email", "");
+        currentUserEmail = sharedPreferences.getString("email", "");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new RideOffersAdapter(new ArrayList<>());
+        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, this);
         recyclerView.setAdapter(adapter);
 
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.app.ProgressDialog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +48,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         args.putString("end_location", rideOffer.getEndLocation());
         args.putString("departure_time", rideOffer.getDepartureTime());
         args.putInt("available_seats", rideOffer.getAvailableSeats());
-        args.putString("status", rideOffer.getRideStatus());
+        args.putString("status", rideOffer.getRideStatus().toString());
         fragment.setArguments(args);
         return fragment;
     }
@@ -114,7 +115,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         args.putInt("month", month);
         args.putInt("day", day);
         datePickerFragment.setArguments(args);
-        datePickerFragment.setListener(this);
+        datePickerFragment.setDatePickerListener(this);
         datePickerFragment.show(getChildFragmentManager(), "datePicker");
     }
 
@@ -134,7 +135,7 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         args.putInt("hour", hourOfDay);
         args.putInt("minute", minute);
         timePickerFragment.setArguments(args);
-        timePickerFragment.setListener(this);
+        timePickerFragment.setTimePickerListener(this);
         timePickerFragment.show(getChildFragmentManager(), "timePicker");
     }
 
