@@ -11,6 +11,8 @@
     
     <!-- Ride offer strings -->
     <string name="ride_offers">Ride Offers</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
     
     <!-- Navigation strings -->
     <string name="first_fragment_label">First Fragment</string>
