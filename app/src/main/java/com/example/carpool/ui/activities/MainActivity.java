@@ -45,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
 
-                getSupportFragmentManager().beginTransaction()
+                getSupportFragmentManager()
+                        .beginTransaction()
                         .replace(R.id.fragment_container, new RideOffersFragment())
                         .commit();
             }
