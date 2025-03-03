@@ -17,6 +17,7 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.models.RegisterRequest;
+import com.example.carpool.ui.activities.MainActivity;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -69,6 +70,12 @@ public class RegisterFragment extends Fragment {
 
         buttonRegister.setOnClickListener(v -> registerUser());
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) requireActivity()).showBottomNav(false);
     }
 
     private void registerUser() {

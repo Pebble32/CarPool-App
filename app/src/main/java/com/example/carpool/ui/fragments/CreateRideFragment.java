@@ -17,6 +17,7 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.api.RideOfferApi;
 import com.example.carpool.data.models.RideOfferRequest;
+import com.example.carpool.ui.activities.MainActivity;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -89,6 +90,12 @@ public class CreateRideFragment extends Fragment implements DatePickerFragment.D
         buttonEditDepartureTime.setOnClickListener(v -> onClickEditDepartureTime());
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) requireActivity()).showBottomNav(true);
     }
 
     private void onClickEditDepartureDate() {
@@ -171,10 +178,7 @@ public class CreateRideFragment extends Fragment implements DatePickerFragment.D
                     Toast.makeText(getContext(), "Ride created successfully!", Toast.LENGTH_SHORT).show();
                     // Navigate back to the RideOffersFragment by replacing the current fragment
                     if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.fragment_container, new RideOffersFragment())
-                                .commit();
+                        ((MainActivity)getActivity()).changeFragment(R.id.nav_my_rides);
                     }
                 } else {
                     Toast.makeText(getContext(), "Ride creation failed: " + response.code(), Toast.LENGTH_SHORT).show();

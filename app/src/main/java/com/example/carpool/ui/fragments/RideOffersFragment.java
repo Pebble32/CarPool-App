@@ -19,6 +19,7 @@ import com.example.carpool.data.api.RideOfferApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.models.PageResponse;
 import com.example.carpool.data.models.RideOfferResponse;
+import com.example.carpool.ui.activities.MainActivity;
 import com.example.carpool.ui.adapters.RideOffersAdapter;
 import java.util.ArrayList;
 import okhttp3.ResponseBody;
@@ -53,7 +54,6 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         View view = inflater.inflate(R.layout.fragment_ride_offers, container, false);
         recyclerView = view.findViewById(R.id.ride_offers_recycler_view);
         buttonLoadMore = view.findViewById(R.id.buttonLoadMore);
-        buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         currentUserEmail = sharedPreferences.getString("email", "");
@@ -66,16 +66,15 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
 
         buttonLoadMore.setOnClickListener(v -> loadRideOffers());
 
-        buttonGoToCreate.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new CreateRideFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-
         loadRideOffers();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).showBottomNav(true);  // Show navigation bar
     }
 
     private void loadRideOffers() {
