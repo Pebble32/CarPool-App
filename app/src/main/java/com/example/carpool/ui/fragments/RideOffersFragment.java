@@ -16,6 +16,7 @@ import com.example.carpool.data.api.RideOfferApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.models.PageResponse;
 import com.example.carpool.data.models.RideOfferResponse;
+import com.example.carpool.ui.activities.MainActivity;
 import com.example.carpool.ui.adapters.RideOffersAdapter;
 import java.util.ArrayList;
 import retrofit2.Call;
@@ -40,7 +41,6 @@ public class RideOffersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_ride_offers, container, false);
         recyclerView = view.findViewById(R.id.recyclerViewRideOffers);
         buttonLoadMore = view.findViewById(R.id.buttonLoadMore);
-        buttonGoToCreate = view.findViewById(R.id.buttonGoToCreate);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new RideOffersAdapter(new ArrayList<>());
@@ -50,16 +50,15 @@ public class RideOffersFragment extends Fragment {
 
         buttonLoadMore.setOnClickListener(v -> loadRideOffers());
 
-        buttonGoToCreate.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new CreateRideFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-
         loadRideOffers();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).showBottomNav(true);  // Show navigation bar
     }
 
     private void loadRideOffers() {
