@@ -1,7 +1,6 @@
 package com.example.carpool.ui.fragments;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,28 +16,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.carpool.R;
 import com.example.carpool.data.api.RideOfferApi;
-import com.example.carpool.data.api.RideRequestApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.models.PageResponse;
 import com.example.carpool.data.models.RideOfferResponse;
-import com.example.carpool.data.models.RideRequestRequest;
-import com.example.carpool.data.models.RideRequestResponse;
 import com.example.carpool.ui.activities.MainActivity;
 import com.example.carpool.ui.adapters.RideOffersAdapter;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.app.ProgressDialog;
+
+
 
 /**
  * RideOffersFragment is responsible for displaying a list of ride offers in a RecyclerView.
- * In addition to editing and deleting ride offers, it now lets a user send a join request
- * for rides they do not own. The fragment maintains a set of ride offer IDs for which a join
- * request has already been sent.
+ * It allows users to load more offers, create a new ride offer, edit existing offers, and delete offers.
+ * This fragment implements the RideOffersAdapter.OnRideOfferActionListener interface to handle user actions on ride offers.
  */
 public class RideOffersFragment extends Fragment implements RideOffersAdapter.OnRideOfferActionListener {
 
@@ -49,10 +44,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
     private int totalPages = 1; // initial assumption
     private final int PAGE_SIZE = 10;
     private RideOfferApi rideOfferApi;
-    private RideRequestApi rideRequestApi;
     private String currentUserEmail;
-    // Set to store ride offer IDs for which the user already sent a join request
-    private Set<Long> joinRequestedRideOfferIds = new HashSet<>();
 
     @Nullable
     @Override
@@ -67,17 +59,13 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         currentUserEmail = sharedPreferences.getString("email", "");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Pass the joinRequestedRideOfferIds set into the adapter
-        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, joinRequestedRideOfferIds, this);
+        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, this);
         recyclerView.setAdapter(adapter);
 
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
-        rideRequestApi = RetrofitClient.getInstance().create(RideRequestApi.class);
 
         buttonLoadMore.setOnClickListener(v -> loadRideOffers());
 
-        // First, fetch existing join requests for the current user
-        fetchUserJoinRequests();
         loadRideOffers();
 
         return view;
@@ -89,40 +77,13 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         ((MainActivity) getActivity()).showBottomNav(true);  // Show navigation bar
     }
 
-    /**
-     * Fetches the list of ride requests already sent by the current user
-     * and populates the joinRequestedRideOfferIds set.
-     */
-    private void fetchUserJoinRequests() {
-        // Assumes RideRequestApi.getUserRideRequests() returns List<RideRequestResponse>
-        rideRequestApi.getUserRideRequests().enqueue(new Callback<List<RideRequestResponse>>() {
-            @Override
-            public void onResponse(Call<List<RideRequestResponse>> call, Response<List<RideRequestResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (RideRequestResponse req : response.body()) {
-                        joinRequestedRideOfferIds.add(req.getRideOfferId());
-                    }
-                    adapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(getContext(), "Failed to fetch join requests", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<RideRequestResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * Loads ride offers using a paginated API call.
-     */
     private void loadRideOffers() {
+        // Check if there are more pages to load
         if (currentPage >= totalPages) {
             buttonLoadMore.setVisibility(View.GONE);
             return;
         }
+        // Make an API call to get paginated ride offers
         rideOfferApi.getPaginatedOffers(currentPage, PAGE_SIZE).enqueue(new Callback<PageResponse<RideOfferResponse>>() {
             @Override
             public void onResponse(Call<PageResponse<RideOfferResponse>> call, Response<PageResponse<RideOfferResponse>> response) {
@@ -136,7 +97,6 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
                     Toast.makeText(getContext(), "Failed to load offers", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<PageResponse<RideOfferResponse>> call, Throwable t) {
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -152,10 +112,12 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
                 .replace(R.id.fragment_container, editFragment)
                 .addToBackStack(null)
                 .commit();
+        
     }
 
     @Override
     public void onDeleteClick(RideOfferResponse rideOffer) {
+        // Show a confirmation dialog before deleting the ride offer
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Ride Offer")
                 .setMessage("Are you sure you want to delete this ride offer?")
@@ -164,50 +126,20 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
                 .show();
     }
 
-    @Override
-    public void onJoinClick(RideOfferResponse rideOffer, int position) {
-        RideRequestRequest request = new RideRequestRequest(rideOffer.getId());
-        ProgressDialog progressDialog = new ProgressDialog(requireContext());
-        progressDialog.setMessage("Sending join request...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+    private void deleteRideOffer(Long rideId){
 
-        rideRequestApi.createRideRequest(request).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                progressDialog.dismiss();
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Join request sent", Toast.LENGTH_SHORT).show();
-                    // Add the ride offer ID to the set and update the adapter to disable the join button.
-                    joinRequestedRideOfferIds.add(rideOffer.getId());
-                    adapter.notifyItemChanged(position);
-                } else {
-                    Toast.makeText(getContext(), "Failed to send join request", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * Deletes a ride offer and reloads the list.
-     */
-    private void deleteRideOffer(Long rideId) {
+        // Show a progress dialog while deleting the ride offer
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Deleting ride offer...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        // Make an API call to delete the ride offer
         rideOfferApi.deleteRideOffer(rideId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 progressDialog.dismiss();
-                if (response.isSuccessful()) {
+                if(response.isSuccessful()){
                     Toast.makeText(getContext(), "Ride offer deleted successfully", Toast.LENGTH_SHORT).show();
                     resetAndReloadOffers();
                 } else {
@@ -223,11 +155,9 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         });
     }
 
-    /**
-     * Resets the adapter and reloads the ride offers.
-     */
-    private void resetAndReloadOffers() {
-        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, joinRequestedRideOfferIds, this);
+    private void resetAndReloadOffers(){
+        // Reset the adapter and reload the ride offers
+        adapter = new RideOffersAdapter(new ArrayList<>(), currentUserEmail, this);
         recyclerView.setAdapter(adapter);
         currentPage = 0;
         loadRideOffers();
