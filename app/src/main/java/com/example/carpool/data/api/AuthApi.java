@@ -11,7 +11,6 @@ import retrofit2.http.POST;
  * It defines endpoints for authenticating users and registering new users.
  */
 public interface AuthApi {
-    // This should /api/v1/auth/X
     @POST("auth/authenticate")
     Call<ResponseBody> authenticate(@Body AuthenticationRequest request);
 
