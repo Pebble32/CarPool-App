@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/accentColor">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textViewRequestStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: PENDING"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/textViewStartLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="From: Reykjavik"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textViewEndLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To: Akureyri"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/black"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/textViewDepartureTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Departure: Mar 10, 2025 14:30"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/gray"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textViewRideStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ride Status: AVAILABLE"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:layout_marginTop="4dp" />
+            
+        <TextView
+            android:id="@+id/textViewDriverEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Driver: driver@example.com"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:layout_marginTop="4dp" />
+            
+        <TextView
+            android:id="@+id/textViewRequestDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Requested on: Mar 5, 2025 10:15"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textStyle="italic"
+            android:layout_marginTop="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/buttonCancelRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -5,6 +5,8 @@ import com.example.carpool.data.models.RideOfferRequest;
 import com.example.carpool.data.models.RideOfferResponse;
 import com.example.carpool.data.models.EditRideOfferRequest;
 
+import java.util.List;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -76,9 +78,25 @@ public interface RideOfferApi {
  * @param id The unique identifier of the ride offer.
  * @return A Call object that can be used to request the ride offer details.
  */
-     @GET("offers/details/{id}")
+     @GET("offers/details")
         Call<RideOfferResponse> getRideOfferDetails(
-                @Query("id") Long id
+                @Query("ID") Long id
         );
      
+/**
+ * Retrieves all ride offers created by the current authenticated user.
+ * 
+ * @return A Call object with a list of RideOfferResponse representing the user's ride history
+ */
+    @GET("offers/user-rideHistory")
+    Call<List<RideOfferResponse>> getUserRideHistory();
+
+/**
+ * Marks a ride offer as finished.
+ * 
+ * @param id The ID of the ride offer to mark as finished
+ * @return A Call object with a ResponseBody indicating success or failure
+ */
+    @PUT("offers/mark-finished/{id}")
+    Call<ResponseBody> markRideAsFinished(@Path("id") Long id);
 }
