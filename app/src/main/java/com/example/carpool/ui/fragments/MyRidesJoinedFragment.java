@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,254 +49,418 @@ public class MyRidesJoinedFragment extends Fragment implements MyRidesJoinedAdap
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView emptyView;
+    private TextView titleView;
     private MyRidesJoinedAdapter adapter;
     private RideRequestApi rideRequestApi;
     private RideOfferApi rideOfferApi;
     private String currentUserEmail;
     private List<RideRequestResponse> rideRequests = new ArrayList<>();
     private Map<Long, RideOfferResponse> rideOffersMap = new HashMap<>();
+    private boolean isLoading = false;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: Starting to create view");
         View view = inflater.inflate(R.layout.fragment_my_rides_joined, container, false);
 
-        Log.d(TAG, "onCreateView: Initializing views");
-        recyclerView = view.findViewById(R.id.recyclerViewMyJoined);
-        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
-        emptyView = view.findViewById(R.id.textViewEmpty);
+        try {
+            // Find views by ID
+            recyclerView = view.findViewById(R.id.recyclerViewMyJoined);
+            swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+            emptyView = view.findViewById(R.id.textViewEmpty);
+            titleView = view.findViewById(R.id.textViewPageTitle);
 
-        // Verify the views were found
-        if (recyclerView == null) {
-            Log.e(TAG, "onCreateView: recyclerView is null! Check the ID in the layout");
-            Toast.makeText(getContext(), "Error: Could not find recycler view", Toast.LENGTH_SHORT).show();
-            return view;
+            if (titleView != null) {
+                titleView.setText("Rides I've Joined");
+            }
+
+            // Make sure recyclerView exists
+            if (recyclerView == null) {
+                Log.e(TAG, "onCreateView: recyclerView is null! ID not found");
+                Toast.makeText(getContext(), "Layout error: Could not find recycler view", Toast.LENGTH_SHORT).show();
+                return view;
+            }
+
+            // Get the current user email
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+            currentUserEmail = sharedPreferences.getString("email", "");
+            Log.d(TAG, "onCreateView: Current user email: " + currentUserEmail);
+
+            // Set up RecyclerView
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            adapter = new MyRidesJoinedAdapter(rideRequests, rideOffersMap, this);
+            recyclerView.setAdapter(adapter);
+
+            // Initialize API clients
+            rideRequestApi = RetrofitClient.getInstance().create(RideRequestApi.class);
+            rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
+
+            // Set up swipe to refresh
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setOnRefreshListener(() -> {
+                    if (!isLoading) {
+                        loadRideRequests();
+                    } else {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+            }
+
+            // Show initial loading state
+            showEmptyView(true, "Loading your ride requests...");
+
+        } catch (Exception e) {
+            Log.e(TAG, "onCreateView: Exception during initialization", e);
+            Toast.makeText(getContext(), "Error initializing view: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
-        if (swipeRefreshLayout == null) {
-            Log.e(TAG, "onCreateView: swipeRefreshLayout is null! Check the ID in the layout");
-        }
-
-        if (emptyView == null) {
-            Log.e(TAG, "onCreateView: emptyView is null! Check the ID in the layout");
-        }
-
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        currentUserEmail = sharedPreferences.getString("email", "");
-        Log.d(TAG, "onCreateView: Current user email: " + currentUserEmail);
-
-        // Set up RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MyRidesJoinedAdapter(rideRequests, rideOffersMap, this);
-        recyclerView.setAdapter(adapter);
-
-        // Initialize API clients
-        rideRequestApi = RetrofitClient.getInstance().create(RideRequestApi.class);
-        rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
-
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setOnRefreshListener(this::loadRideRequests);
-        }
-
-        // Load data
-        loadRideRequests();
 
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: Loading ride requests");
+        loadRideRequests();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null && rideRequests.isEmpty() && !isLoading) {
+            Log.d(TAG, "onResume: No requests loaded yet, loading now");
+            loadRideRequests();
+        }
+    }
+
     private void loadRideRequests() {
-        Log.d(TAG, "loadRideRequests: Loading ride requests");
+        if (isLoading) {
+            Log.d(TAG, "loadRideRequests: Already loading, ignoring request");
+            return;
+        }
+
+        if (!isAdded()) {
+            Log.d(TAG, "loadRideRequests: Fragment not attached, ignoring request");
+            return;
+        }
+
+        isLoading = true;
+        Log.d(TAG, "loadRideRequests: Starting to load ride requests");
+
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         }
 
-        // Use the correct method from the interface
-        Call<List<RideRequestResponse>> call = rideRequestApi.getUserRideRequests();
-        Log.d(TAG, "loadRideRequests: Making API call to: " + call.request().url());
+        // Clear any existing data
+        rideRequests.clear();
+        rideOffersMap.clear();
 
-        call.enqueue(new Callback<List<RideRequestResponse>>() {
-            @Override
-            public void onResponse(Call<List<RideRequestResponse>> call, Response<List<RideRequestResponse>> response) {
-                if (swipeRefreshLayout != null) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+        try {
+            Call<List<RideRequestResponse>> call = rideRequestApi.getUserRideRequests();
+            Log.d(TAG, "loadRideRequests: Making API call to: " + call.request().url());
 
-                if (response.isSuccessful()) {
-                    List<RideRequestResponse> responseData = response.body();
-                    if (responseData != null) {
-                        Log.d(TAG, "onResponse: Received " + responseData.size() + " ride requests");
-
-                        // Clear existing data
-                        rideRequests.clear();
-
-                        if (!responseData.isEmpty()) {
-                            // Log the first request to verify data structure
-                            RideRequestResponse sampleRequest = responseData.get(0);
-                            Log.d(TAG, "Sample request - ID: " + sampleRequest.getId()
-                                    + ", Status: " + sampleRequest.getRequestStatus()
-                                    + ", RideOfferId: " + sampleRequest.getRideOfferId());
-
-                            // Sort by request date (newest first)
-                            Collections.sort(responseData, (r1, r2) -> {
-                                if (r1.getRequestDate() == null) return 1;
-                                if (r2.getRequestDate() == null) return -1;
-                                return r2.getRequestDate().compareTo(r1.getRequestDate());
-                            });
-
-                            // Add sorted data to our list
-                            rideRequests.addAll(responseData);
-                            Log.d(TAG, "Added " + rideRequests.size() + " requests to the adapter");
-
-                            // Update UI
-                            adapter.notifyDataSetChanged();
-                            showEmptyView(false);
-
-                            // Fetch ride offer details to enhance display
-                            fetchRideOfferDetails();
-                        } else {
-                            Log.d(TAG, "onResponse: No ride requests found");
-                            showEmptyView(true);
-                        }
-                    } else {
-                        Log.e(TAG, "onResponse: Response body is null");
-                        showEmptyView(true);
+            call.enqueue(new Callback<List<RideRequestResponse>>() {
+                @Override
+                public void onResponse(Call<List<RideRequestResponse>> call, Response<List<RideRequestResponse>> response) {
+                    if (!isAdded()) {
+                        Log.d(TAG, "onResponse: Fragment not attached, ignoring response");
+                        isLoading = false;
+                        return;
                     }
-                } else {
-                    Log.e(TAG, "onResponse: Request failed with code " + response.code());
+
                     try {
-                        Log.e(TAG, "onResponse: Error body: " + response.errorBody().string());
+                        if (swipeRefreshLayout != null) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<RideRequestResponse> requests = response.body();
+                            Log.d(TAG, "onResponse: Received " + requests.size() + " ride requests");
+
+                            if (!requests.isEmpty()) {
+                                // Log the first request details for debugging
+                                RideRequestResponse firstRequest = requests.get(0);
+                                Log.d(TAG, "First request - ID: " + firstRequest.getId()
+                                        + ", Status: " + firstRequest.getRequestStatus()
+                                        + ", RideOfferId: " + firstRequest.getRideOfferId());
+
+                                rideRequests.addAll(requests);
+                                adapter.notifyDataSetChanged();
+
+                                // Show content instead of empty view
+                                showEmptyView(false, null);
+
+                                // Load ride offer details
+                                fetchRideOfferDetails();
+                            } else {
+                                Log.d(TAG, "onResponse: No ride requests found");
+                                showEmptyView(true, "You haven't joined any rides yet.");
+                            }
+                        } else {
+                            Log.e(TAG, "onResponse: Request failed with code " + response.code());
+                            String errorMsg = "Failed to load ride requests (Code: " + response.code() + ")";
+
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMsg += "\n" + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to read error body", e);
+                            }
+
+                            showEmptyView(true, "Error loading requests");
+                            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        }
                     } catch (Exception e) {
-                        Log.e(TAG, "onResponse: Could not read error body", e);
+                        Log.e(TAG, "onResponse: Exception while processing response", e);
+                        showEmptyView(true, "Error processing data");
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    } finally {
+                        isLoading = false;
                     }
-                    Toast.makeText(getContext(), "Failed to load ride requests: " + response.code(), Toast.LENGTH_SHORT).show();
-                    showEmptyView(true);
                 }
+
+                @Override
+                public void onFailure(Call<List<RideRequestResponse>> call, Throwable t) {
+                    isLoading = false;
+
+                    if (!isAdded()) {
+                        Log.d(TAG, "onFailure: Fragment not attached, ignoring failure");
+                        return;
+                    }
+
+                    try {
+                        Log.e(TAG, "onFailure: Network request failed", t);
+
+                        if (swipeRefreshLayout != null) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+
+                        showEmptyView(true, "Network error");
+                        Toast.makeText(getContext(), "Could not load ride requests: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.e(TAG, "onFailure: Exception handling network failure", e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            isLoading = false;
+            Log.e(TAG, "loadRideRequests: Exception making API call", e);
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
             }
 
-            @Override
-            public void onFailure(Call<List<RideRequestResponse>> call, Throwable t) {
-                Log.e(TAG, "onFailure: Request failed", t);
-                if (swipeRefreshLayout != null) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                showEmptyView(true);
-            }
-        });
+            showEmptyView(true, "Error loading requests");
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
-    private void showEmptyView(boolean show) {
-        if (recyclerView == null || emptyView == null) return;
+    private void showEmptyView(boolean show, String message) {
+        if (!isAdded()) {
+            return;
+        }
 
-        Log.d(TAG, "showEmptyView: " + show);
-        if (show) {
-            emptyView.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            emptyView.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
+        Log.d(TAG, "showEmptyView: " + show + (message != null ? ", message: " + message : ""));
+
+        try {
+            if (recyclerView != null && emptyView != null) {
+                if (show) {
+                    if (message != null) {
+                        emptyView.setText(message);
+                    }
+                    emptyView.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                } else {
+                    emptyView.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+            } else {
+                Log.e(TAG, "showEmptyView: recyclerView or emptyView is null");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "showEmptyView: Exception", e);
         }
     }
 
     private void fetchRideOfferDetails() {
-        Log.d(TAG, "fetchRideOfferDetails: Fetching details for " + rideRequests.size() + " ride offers");
-
-        if (rideRequests.isEmpty()) {
+        if (!isAdded() || rideRequests.isEmpty()) {
             return;
         }
 
-        rideOffersMap.clear();
-        final int[] requestsProcessed = {0};
+        Log.d(TAG, "fetchRideOfferDetails: Starting to fetch details for " + rideRequests.size() + " ride offers");
+
+        // Use AtomicInteger to track completion in async callbacks
+        final AtomicInteger requestsProcessed = new AtomicInteger(0);
         final int totalRequests = rideRequests.size();
 
+        // Prepare map for new data
+        rideOffersMap.clear();
+
+        // Process each ride request
         for (RideRequestResponse request : rideRequests) {
             Long rideOfferId = request.getRideOfferId();
             if (rideOfferId == null) {
                 Log.e(TAG, "fetchRideOfferDetails: Ride offer ID is null for request ID: " + request.getId());
-                requestsProcessed[0]++;
+                requestsProcessed.incrementAndGet();
                 continue;
             }
 
-            Log.d(TAG, "fetchRideOfferDetails: Fetching details for ride offer ID: " + rideOfferId);
-            Call<RideOfferResponse> call = rideOfferApi.getRideOfferDetails(rideOfferId);
-            call.enqueue(new Callback<RideOfferResponse>() {
-                @Override
-                public void onResponse(Call<RideOfferResponse> call, Response<RideOfferResponse> response) {
-                    requestsProcessed[0]++;
+            try {
+                Log.d(TAG, "fetchRideOfferDetails: Fetching details for ride offer ID: " + rideOfferId);
 
-                    if (response.isSuccessful() && response.body() != null) {
-                        Log.d(TAG, "onResponse: Got details for ride offer ID: " + rideOfferId);
-                        rideOffersMap.put(rideOfferId, response.body());
-                    } else {
-                        Log.e(TAG, "onResponse: Failed to get details for ride offer ID: " + rideOfferId);
+                Call<RideOfferResponse> call = rideOfferApi.getRideOfferDetails(rideOfferId);
+                call.enqueue(new Callback<RideOfferResponse>() {
+                    @Override
+                    public void onResponse(Call<RideOfferResponse> call, Response<RideOfferResponse> response) {
+                        int processed = requestsProcessed.incrementAndGet();
+
+                        try {
+                            if (!isAdded()) {
+                                Log.d(TAG, "onResponse: Fragment not attached, ignoring response for ride offer " + rideOfferId);
+                                return;
+                            }
+
+                            if (response.isSuccessful() && response.body() != null) {
+                                Log.d(TAG, "onResponse: Got details for ride offer ID: " + rideOfferId);
+                                rideOffersMap.put(rideOfferId, response.body());
+                            } else {
+                                Log.e(TAG, "onResponse: Failed to get details for ride offer ID: " + rideOfferId);
+                            }
+
+                            // Update UI if all requests have been processed
+                            if (processed >= totalRequests) {
+                                Log.d(TAG, "onResponse: All " + processed + " ride offer details fetched. Updating adapter.");
+                                requireActivity().runOnUiThread(() -> {
+                                    if (adapter != null) {
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "onResponse: Exception processing ride offer details", e);
+                        }
                     }
 
-                    if (requestsProcessed[0] >= totalRequests) {
-                        Log.d(TAG, "onResponse: All ride offer details fetched. Updating adapter.");
-                        adapter.notifyDataSetChanged();
-                    }
-                }
+                    @Override
+                    public void onFailure(Call<RideOfferResponse> call, Throwable t) {
+                        int processed = requestsProcessed.incrementAndGet();
 
-                @Override
-                public void onFailure(Call<RideOfferResponse> call, Throwable t) {
-                    Log.e(TAG, "onFailure: Failed to get details for ride offer ID: " + rideOfferId, t);
-                    requestsProcessed[0]++;
+                        if (!isAdded()) {
+                            Log.d(TAG, "onFailure: Fragment not attached, ignoring failure for ride offer " + rideOfferId);
+                            return;
+                        }
 
-                    if (requestsProcessed[0] >= totalRequests) {
-                        Log.d(TAG, "onFailure: All ride offer requests completed (some failed). Updating adapter.");
-                        adapter.notifyDataSetChanged();
+                        Log.e(TAG, "onFailure: Failed to get details for ride offer ID: " + rideOfferId, t);
+
+                        // Update UI if all requests have been processed
+                        if (processed >= totalRequests) {
+                            Log.d(TAG, "onFailure: All " + processed + " ride offer detail requests complete (some failed). Updating adapter.");
+                            requireActivity().runOnUiThread(() -> {
+                                if (adapter != null) {
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
                     }
-                }
-            });
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "fetchRideOfferDetails: Exception for ride offer ID: " + rideOfferId, e);
+                requestsProcessed.incrementAndGet();
+            }
         }
     }
 
     @Override
     public void onCancelRequestClick(RideRequestResponse rideRequest) {
+        if (!isAdded()) {
+            return;
+        }
+
         Log.d(TAG, "onCancelRequestClick: Canceling request ID: " + rideRequest.getId());
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Cancel Request")
-                .setMessage("Are you sure you want to cancel this ride request?")
-                .setPositiveButton("Yes", (dialog, which) -> cancelRideRequest(rideRequest))
-                .setNegativeButton("No", null)
-                .show();
+        try {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Cancel Request")
+                    .setMessage("Are you sure you want to cancel this ride request?")
+                    .setPositiveButton("Yes", (dialog, which) -> cancelRideRequest(rideRequest))
+                    .setNegativeButton("No", null)
+                    .show();
+        } catch (Exception e) {
+            Log.e(TAG, "onCancelRequestClick: Exception showing dialog", e);
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void cancelRideRequest(RideRequestResponse rideRequest) {
+        if (!isAdded()) {
+            return;
+        }
+
         Log.d(TAG, "cancelRideRequest: Sending cancel request for ID: " + rideRequest.getId());
 
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Canceling ride request...");
         progressDialog.setCancelable(false);
-        progressDialog.show();
 
-        // Create a request to change the ride request status to CANCELED
-        EditRideRequestRequest editRequest = new EditRideRequestRequest(rideRequest.getId(), "CANCELED");
+        try {
+            progressDialog.show();
 
-        // Make the API call to cancel the request
-        rideRequestApi.editRideRequestStatus(editRequest).enqueue(new Callback<RideRequestResponse>() {
-            @Override
-            public void onResponse(Call<RideRequestResponse> call, Response<RideRequestResponse> response) {
-                progressDialog.dismiss();
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "onResponse: Successfully canceled ride request");
-                    Toast.makeText(getContext(), "Ride request canceled successfully", Toast.LENGTH_SHORT).show();
-                    loadRideRequests();
-                } else {
-                    Log.e(TAG, "onResponse: Failed to cancel ride request: " + response.code());
-                    Toast.makeText(getContext(), "Failed to cancel ride request: " + response.code(), Toast.LENGTH_SHORT).show();
+            // Create a request to change the ride request status to CANCELED
+            EditRideRequestRequest editRequest = new EditRideRequestRequest(rideRequest.getId(), "CANCELED");
+
+            // Make the API call to cancel the request
+            rideRequestApi.editRideRequestStatus(editRequest).enqueue(new Callback<RideRequestResponse>() {
+                @Override
+                public void onResponse(Call<RideRequestResponse> call, Response<RideRequestResponse> response) {
+                    try {
+                        progressDialog.dismiss();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error dismissing dialog", e);
+                    }
+
+                    if (!isAdded()) {
+                        return;
+                    }
+
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "onResponse: Successfully canceled ride request");
+                        Toast.makeText(getContext(), "Ride request canceled successfully", Toast.LENGTH_SHORT).show();
+                        loadRideRequests();
+                    } else {
+                        Log.e(TAG, "onResponse: Failed to cancel ride request: " + response.code());
+                        Toast.makeText(getContext(), "Failed to cancel ride request: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
                 }
+
+                @Override
+                public void onFailure(Call<RideRequestResponse> call, Throwable t) {
+                    try {
+                        progressDialog.dismiss();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error dismissing dialog", e);
+                    }
+
+                    if (!isAdded()) {
+                        return;
+                    }
+
+                    Log.e(TAG, "onFailure: Cancel request failed", t);
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            try {
+                progressDialog.dismiss();
+            } catch (Exception dialogError) {
+                Log.e(TAG, "Error dismissing dialog", dialogError);
             }
 
-            @Override
-            public void onFailure(Call<RideRequestResponse> call, Throwable t) {
-                Log.e(TAG, "onFailure: Cancel request failed", t);
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+            Log.e(TAG, "cancelRideRequest: Exception", e);
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

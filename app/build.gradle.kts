@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.swiperefreshlayout)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
