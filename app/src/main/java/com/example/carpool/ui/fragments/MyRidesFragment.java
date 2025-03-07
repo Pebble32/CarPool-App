@@ -1,14 +1,11 @@
 package com.example.carpool.ui.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +18,7 @@ import com.example.carpool.data.api.RideRequestApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.ui.activities.MainActivity;
 import com.example.carpool.ui.adapters.MyRidesPagerAdapter;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -42,35 +40,36 @@ public class MyRidesFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_rides, container, false);
-        
+
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
-        
+
         // Set up the toolbar
-        com.google.android.material.appbar.MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
+        MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
         toolbar.setTitle("My Rides");
-        
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         currentUserEmail = sharedPreferences.getString("email", "");
-        
+
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
         rideRequestApi = RetrofitClient.getInstance().create(RideRequestApi.class);
-        
+
         setupViewPager();
-        
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) getActivity()).showBottomNav(true);  // Show navigation bar
+        ((MainActivity) requireActivity()).showBottomNav(true);  // Show navigation bar
     }
-    
+
     private void setupViewPager() {
-        MyRidesPagerAdapter pagerAdapter = new MyRidesPagerAdapter(this);
+        // Create adapter using the child fragment manager and lifecycle
+        MyRidesPagerAdapter pagerAdapter = new MyRidesPagerAdapter(getChildFragmentManager(), getLifecycle());
         viewPager.setAdapter(pagerAdapter);
-        
+
         // Connect TabLayout with ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {

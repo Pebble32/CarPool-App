@@ -1,9 +1,11 @@
 package com.example.carpool.ui.adapters;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,7 +42,7 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_my_ride_joined, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ride_offer, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,64 +50,72 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         RideRequestResponse request = rideRequests.get(position);
         RideOfferResponse rideOffer = rideOffersMap.get(request.getRideOfferId());
-        
-        // Set request details
-        holder.requestStatus.setText(String.format("Status: %s", request.getRequestStatus()));
-        
-        // Set status color based on request status
+
+        // Display request ID and status at the top
+        String requestStatus = request.getRequestStatus();
+        StringBuilder statusText = new StringBuilder("Request: ");
+        statusText.append(requestStatus);
+
+        // Set the status color
         int statusColor;
-        switch (request.getRequestStatus()) {
+        switch (requestStatus) {
             case "ACCEPTED":
-                statusColor = android.graphics.Color.parseColor("#4CAF50"); // Green
+                statusColor = Color.parseColor("#4CAF50"); // Green
                 break;
             case "REJECTED":
-                statusColor = android.graphics.Color.parseColor("#F44336"); // Red
+                statusColor = Color.parseColor("#F44336"); // Red
                 break;
             case "CANCELED":
-                statusColor = android.graphics.Color.parseColor("#9E9E9E"); // Gray
+                statusColor = Color.parseColor("#9E9E9E"); // Gray
                 break;
             case "PENDING":
             default:
-                statusColor = android.graphics.Color.parseColor("#FF9800"); // Orange
+                statusColor = Color.parseColor("#FF9800"); // Orange
                 break;
         }
-        holder.requestStatus.setTextColor(statusColor);
-        
-        holder.requestDate.setText(String.format("Requested on: %s", 
-                request.getRequestDate() != null ? request.getRequestDate().format(formatter) : "Unknown"));
-        
+
         // Set ride offer details if available
         if (rideOffer != null) {
-            holder.startLocation.setText(String.format("From: %s", rideOffer.getStartLocation()));
-            holder.endLocation.setText(String.format("To: %s", rideOffer.getEndLocation()));
-            holder.departureTime.setText(String.format("Departure: %s", 
-                    rideOffer.getDepartureTime() != null ? rideOffer.getDepartureTime().format(formatter) : "Unknown"));
-            holder.rideStatus.setText(String.format("Ride Status: %s", rideOffer.getStatus()));
-            holder.driverEmail.setText(String.format("Driver: %s", rideOffer.getCreatorEmail()));
-        } else {
-            holder.startLocation.setText("From: Loading...");
-            holder.endLocation.setText("To: Loading...");
-            holder.departureTime.setText("Departure: Loading...");
-            holder.rideStatus.setText("Ride Status: Loading...");
-            holder.driverEmail.setText("Driver: Loading...");
-        }
-        
-        // Configure cancel button based on request status
-        if ("PENDING".equals(request.getRequestStatus())) {
-            holder.cancelButton.setVisibility(View.VISIBLE);
-            holder.cancelButton.setOnClickListener(v -> listener.onCancelRequestClick(request));
-        } else if ("ACCEPTED".equals(request.getRequestStatus())) {
-            // For accepted requests, allow cancellation if the ride is not finished
-            if (rideOffer != null && !("FINISHED".equals(rideOffer.getStatus()) || "CANCELLED".equals(rideOffer.getStatus()))) {
-                holder.cancelButton.setVisibility(View.VISIBLE);
-                holder.cancelButton.setText("Cancel Participation");
-                holder.cancelButton.setOnClickListener(v -> listener.onCancelRequestClick(request));
+            holder.startLocation.setText(rideOffer.getStartLocation());
+            holder.endLocation.setText(rideOffer.getEndLocation());
+
+            if (rideOffer.getDepartureTime() != null) {
+                holder.departureTime.setText("Departure: " + rideOffer.getDepartureTime().format(String.valueOf(formatter)));
             } else {
-                holder.cancelButton.setVisibility(View.GONE);
+                holder.departureTime.setText("Departure: Not specified");
             }
+
+            // Add ride status to available seats field
+            holder.availableSeats.setText(statusText.toString() + " • Ride: " + rideOffer.getStatus());
         } else {
-            // For rejected, canceled, or other statuses, hide the cancel button
-            holder.cancelButton.setVisibility(View.GONE);
+            holder.startLocation.setText("Request #" + request.getId());
+            holder.endLocation.setText(statusText.toString());
+
+            if (request.getRequestDate() != null) {
+                holder.departureTime.setText("Requested on: " + request.getRequestDate().format(formatter));
+            } else {
+                holder.departureTime.setText("Request date unknown");
+            }
+
+            holder.availableSeats.setText("Loading ride details...");
+        }
+
+        // Show buttons layout
+        holder.buttonLayout.setVisibility(View.VISIBLE);
+
+        // Hide edit and delete buttons for ride requests
+        holder.editButton.setVisibility(View.GONE);
+        holder.deleteButton.setVisibility(View.GONE);
+
+        // Configure join button as "Cancel Request"
+        if (holder.joinButton != null) {
+            if ("PENDING".equals(requestStatus) || "ACCEPTED".equals(requestStatus)) {
+                holder.joinButton.setText("Cancel Request");
+                holder.joinButton.setVisibility(View.VISIBLE);
+                holder.joinButton.setOnClickListener(v -> listener.onCancelRequestClick(request));
+            } else {
+                holder.joinButton.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -115,19 +125,20 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView startLocation, endLocation, departureTime, rideStatus, requestStatus, requestDate, driverEmail;
-        Button cancelButton;
+        TextView startLocation, endLocation, departureTime, availableSeats;
+        Button editButton, deleteButton, joinButton;
+        LinearLayout buttonLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
             startLocation = itemView.findViewById(R.id.textViewStartLocation);
             endLocation = itemView.findViewById(R.id.textViewEndLocation);
             departureTime = itemView.findViewById(R.id.textViewDepartureTime);
-            rideStatus = itemView.findViewById(R.id.textViewRideStatus);
-            requestStatus = itemView.findViewById(R.id.textViewRequestStatus);
-            requestDate = itemView.findViewById(R.id.textViewRequestDate);
-            driverEmail = itemView.findViewById(R.id.textViewDriverEmail);
-            cancelButton = itemView.findViewById(R.id.buttonCancelRequest);
+            availableSeats = itemView.findViewById(R.id.textViewAvailableSeats);
+            editButton = itemView.findViewById(R.id.editButton);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
+            joinButton = itemView.findViewById(R.id.joinButton);
+            buttonLayout = itemView.findViewById(R.id.buttonLayout);
         }
     }
 }

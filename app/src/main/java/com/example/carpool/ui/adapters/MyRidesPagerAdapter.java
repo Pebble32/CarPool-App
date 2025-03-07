@@ -2,9 +2,10 @@ package com.example.carpool.ui.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.carpool.ui.fragments.MyRidesFragment;
 import com.example.carpool.ui.fragments.MyRidesOfferedFragment;
 import com.example.carpool.ui.fragments.MyRidesJoinedFragment;
 
@@ -14,8 +15,13 @@ import com.example.carpool.ui.fragments.MyRidesJoinedFragment;
  */
 public class MyRidesPagerAdapter extends FragmentStateAdapter {
 
-    public MyRidesPagerAdapter(@NonNull Fragment fragment) {
-        super(fragment);
+    /**
+     * Constructor that takes a FragmentManager and Lifecycle
+     * @param fragmentManager The fragment manager
+     * @param lifecycle The lifecycle
+     */
+    public MyRidesPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+        super(fragmentManager, lifecycle);
     }
 
     @NonNull

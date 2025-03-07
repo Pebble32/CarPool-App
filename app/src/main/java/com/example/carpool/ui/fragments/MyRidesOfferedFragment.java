@@ -52,7 +52,7 @@ public class MyRidesOfferedFragment extends Fragment implements MyRidesOfferedAd
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_rides_offered, container, false);
         
-        recyclerView = view.findViewById(R.id.recyclerViewMyOffers);
+        recyclerView = view.findViewById(R.id.recyclerViewMyJoined);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         emptyView = view.findViewById(R.id.textViewEmpty);
         
