@@ -232,4 +232,17 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         currentPage = 0;
         loadRideOffers();
     }
+
+
+    /**
+     * Handles the click event for viewing ride requests.
+     */
+    @Override
+    public void onViewRequestsClick(RideOfferResponse rideOffer) {
+    Fragment rideRequestsFragment = RideRequestsFragment.newInstance(rideOffer.getId());
+    getActivity().getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container, rideRequestsFragment)
+            .addToBackStack(null)
+            .commit();
+    }
 }
