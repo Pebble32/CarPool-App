@@ -15,12 +15,17 @@ import com.example.carpool.data.models.RideRequestResponse;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
-public class RideRequestsAdapter {
+/**
+ * Adapter for displaying ride requests in a RecyclerView.
+ */
+public class RideRequestsAdapter extends RecyclerView.Adapter<RideRequestsAdapter.ViewHolder> {
 
     private List<RideRequestResponse> rideRequests;
     private OnRideRequestActionListener listener;
 
+    /**
+     * Interface for handling ride request actions.
+     */
     public interface OnRideRequestActionListener {
         void onAcceptRequest(RideRequestResponse request);
         void onDeclineRequest(RideRequestResponse request);
