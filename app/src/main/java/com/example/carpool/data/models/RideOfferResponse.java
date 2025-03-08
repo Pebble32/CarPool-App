@@ -27,4 +27,7 @@ public class RideOfferResponse {
     public void setRideStatus(RideStatus status) { this.status = status; }
     public void setAvailableSeats(Integer availableSeats) { this.availableSeats = availableSeats; }
 
+    public String getStatus() {
+        return status.toString();
+    }
 }

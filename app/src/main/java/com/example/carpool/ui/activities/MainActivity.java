@@ -9,10 +9,10 @@ import android.view.View;
 import com.example.carpool.R;
 import com.example.carpool.ui.fragments.CreateRideFragment;
 import com.example.carpool.ui.fragments.LoginFragment;
+import com.example.carpool.ui.fragments.MyRidesFragment;
 import com.example.carpool.ui.fragments.RideOffersFragment;
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.FragmentManager;
-import com.example.carpool.ui.fragments.RideOffersFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
@@ -25,6 +25,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
  * It also sets up a custom back press handler that:
  * - Clears the back stack if there are any entries.
  * - Replaces the current fragment with the RideOffersFragment.
+ * - Sets the bottom navigation to show the Browse tab as selected.
  *
  * Methods:
  * - onCreate(Bundle savedInstanceState): Initializes the activity and sets up the initial fragment.
@@ -61,10 +62,14 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
 
+                // Replace with RideOffersFragment (Browse)
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, new RideOffersFragment())
                         .commit();
+
+                // Update bottom nav to show Browse tab as selected
+                bottomNavigationView.setSelectedItemId(R.id.nav_browse);
             }
         });
     }
@@ -77,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
 
         if (navFragmentId == R.id.nav_my_rides) {
-            selectedFragment = new RideOffersFragment();
+            selectedFragment = new MyRidesFragment();
         } else if (navFragmentId == R.id.nav_browse) {
             selectedFragment = new RideOffersFragment();
         } else if (navFragmentId == R.id.nav_create_ride) {
@@ -99,5 +104,22 @@ public class MainActivity extends AppCompatActivity {
         if (bottomNavigationView != null) {
             bottomNavigationView.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+    }
+
+    /**
+     * Public method to navigate to the main screen after login.
+     * Sets the Browse tab as the default.
+     */
+    public void navigateToMainScreen() {
+        // Load the RideOffersFragment (Browse)
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new RideOffersFragment())
+                .commit();
+
+        // Show the bottom navigation
+        showBottomNav(true);
+
+        // Select the Browse tab
+        bottomNavigationView.setSelectedItemId(R.id.nav_browse);
     }
 }
