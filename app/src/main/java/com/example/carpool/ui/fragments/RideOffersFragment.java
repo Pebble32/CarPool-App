@@ -94,7 +94,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
      * and populates the joinRequestedRideOfferIds set.
      */
     private void fetchUserJoinRequests() {
-        // Assumes RideRequestApi.getUserRideRequests() returns List<RideRequestResponse>
+        
         rideRequestApi.getUserRideRequests().enqueue(new Callback<List<RideRequestResponse>>() {
             @Override
             public void onResponse(Call<List<RideRequestResponse>> call, Response<List<RideRequestResponse>> response) {

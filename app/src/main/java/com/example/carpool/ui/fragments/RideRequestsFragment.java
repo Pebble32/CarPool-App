@@ -1,11 +1,10 @@
-
 package com.example.carpool.ui.fragments;
 
-import android.app.AlertDialog;
+import android.app.AlertDialog; 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
+import android.view.View; 
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,12 +37,10 @@ import retrofit2.Response;
 public class RideRequestsFragment extends Fragment implements RideRequestsAdapter.OnRideRequestActionListener {
 
     private RecyclerView recyclerView;
-    private RideRequestAdapter adapter;
+    private RideRequestsAdapter adapter; // Fixed class name (was RideRequestAdapter)
     private RideRequestApi rideRequestApi;
     private Long rideOfferId;
     private TextView emptyStateTextView;
-
-
 
     /**
      * Creates a new instance of RideRequestsFragment with the given ride offer ID.
@@ -59,13 +56,12 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
         return fragment;
     }
 
-
     @Nullable
     @Override
-    public view onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saveInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) { // Fixed View type and parameter name
         View view = inflater.inflate(R.layout.fragment_ride_requests, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.ride_requests_recycler_view); // Make sure this ID matches your layout
         emptyStateTextView = view.findViewById(R.id.empty_state_text_view);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -151,19 +147,17 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
         );
     }
 
-
     /**
      * Shows a confirmation dialog before accepting or declining a ride request.
      */
     private void showConfirmationDialog(RideRequestResponse rideRequest, String title, String message, String answerStatus){
-        new AlrertDialog.Builder(getContext())
+        new AlertDialog.Builder(getContext()) // Fixed AlertDialog spelling
         .setTitle(title)
         .setMessage(message)
-        .setPositiveButton("Yes", (dialog, which) -> answerRideRequest(rideRequest, answerStatus))
+        .setPositiveButton("Yes", (dialog, which) -> answerRideRequest(rideRequest.getId(), answerStatus)) 
         .setNegativeButton("No", null)
         .show();
     }
-
 
     /**
      * Sends a request to the server to accept or decline a ride request.

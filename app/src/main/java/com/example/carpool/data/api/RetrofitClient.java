@@ -1,15 +1,15 @@
 package com.example.carpool.data.api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.time.LocalDateTime;
+
 /**
  * Singleton class to manage Retrofit instance for network operations.
- * 
- * This class provides a single instance of Retrofit configured with a base URL,
- * an OkHttpClient with an in-memory cookie jar, and a Gson converter factory.
- * 
  */
 public class RetrofitClient {
 
@@ -19,6 +19,11 @@ public class RetrofitClient {
 
     public static Retrofit getInstance() {
         if (retrofit == null) {
+            // Create Gson instance with custom date type adapter
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(LocalDateTime.class, new DateTypeAdapter())
+                    .create();
+                    
             OkHttpClient client = new OkHttpClient.Builder()
                     .cookieJar(cookieJar)
                     .build();
@@ -26,7 +31,7 @@ public class RetrofitClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofit;

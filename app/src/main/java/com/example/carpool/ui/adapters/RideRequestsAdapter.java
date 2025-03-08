@@ -27,8 +27,8 @@ public class RideRequestsAdapter extends RecyclerView.Adapter<RideRequestsAdapte
      * Interface for handling ride request actions.
      */
     public interface OnRideRequestActionListener {
-        void onAcceptRequest(RideRequestResponse request);
-        void onDeclineRequest(RideRequestResponse request);
+        void onAcceptClick(RideRequestResponse request);
+        void onDeclineClick(RideRequestResponse request);
     }
 
 
@@ -67,7 +67,7 @@ public class RideRequestsAdapter extends RecyclerView.Adapter<RideRequestsAdapte
         boolean isPending = "PENDING".equalsIgnoreCase(request.getRequestStatus());
         holder.buttonLayout.setVisibility(isPending ? View.VISIBLE : View.GONE);
         
-        holder.acceptButton.setOnClickListener (v -> listener.onAcceptClick(request));
+        holder.acceptButton.setOnClickListener(v -> listener.onAcceptClick(request));
         holder.declineButton.setOnClickListener(v -> listener.onDeclineClick(request));
     }
 
