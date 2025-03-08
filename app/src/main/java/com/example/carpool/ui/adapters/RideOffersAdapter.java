@@ -30,6 +30,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
         void onEditClick(RideOfferResponse rideOffer);
         void onDeleteClick(RideOfferResponse rideOffer);
         void onJoinClick(RideOfferResponse rideOffer, int position);
+        void onViewRequestsClick(RideOfferResponse rideOffer);
     }
     
     public RideOffersAdapter(List<RideOfferResponse> rideOffers, String currentUserEmail, Set<Long> joinRequestedRideOfferIds, OnRideOfferActionListener listener) {
@@ -66,15 +67,18 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
             holder.buttonLayout.setVisibility(View.VISIBLE);
             holder.editButton.setVisibility(View.VISIBLE);
             holder.deleteButton.setVisibility(View.VISIBLE);
+            holder.viewRequestsButton.setVisibility(View.VISIBLE);
             holder.joinButton.setVisibility(View.GONE);
             
             holder.editButton.setOnClickListener(v -> listener.onEditClick(offer));
             holder.deleteButton.setOnClickListener(v -> listener.onDeleteClick(offer));
+            holder.viewRequestsButton.setOnClickListener(v -> listener.onViewRequestsClick(offer));
         } else {
             // For non-creators, hide edit/delete and show join button.
             holder.buttonLayout.setVisibility(View.VISIBLE);
             holder.editButton.setVisibility(View.GONE);
             holder.deleteButton.setVisibility(View.GONE);
+            holder.viewRequestsButton.setVisibility(View.GONE);
             holder.joinButton.setVisibility(View.VISIBLE);
             
             if (joinRequestedRideOfferIds.contains(offer.getId())) {
@@ -95,7 +99,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
     
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView startLocation, endLocation, departureTime, availableSeats;
-        Button editButton, deleteButton, joinButton;
+        Button editButton, deleteButton, joinButton, viewRequestsButton;
         LinearLayout buttonLayout;
         
         public ViewHolder(View itemView) {
@@ -107,6 +111,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
             joinButton = itemView.findViewById(R.id.joinButton);
+            viewRequestsButton = itemView.findViewById(R.id.viewRequestsButton);
             buttonLayout = itemView.findViewById(R.id.buttonLayout);
         }
     }
