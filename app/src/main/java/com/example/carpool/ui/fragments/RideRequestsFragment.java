@@ -31,6 +31,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * A fragment that displays all ride requests for a specific ride offer and allows
+ * the ride offer creator to accept or decline those requests.
+ */
 public class RideRequestsFragment extends Fragment implements RideRequestsAdapter.OnRideRequestActionListener {
 
     private RecyclerView recyclerView;
@@ -39,6 +43,14 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
     private Long rideOfferId;
     private TextView emptyStateTextView;
 
+
+
+    /**
+     * Creates a new instance of RideRequestsFragment with the given ride offer ID.
+     *
+     * @param rideOfferId The ID of the ride offer to display requests for.
+     * @return A new instance of RideRequestsFragment.
+     */
     public static RideRequestsFragment newInstance(Long rideOfferId) {
         RideRequestsFragment fragment = new RideRequestsFragment();
         Bundle args = new Bundle();
@@ -82,7 +94,9 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
         }
     }
 
-
+    /**
+     * Loads all ride requests for the specified ride offer.
+     */
     private void loadRideRequests(){
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Loading ride requests...");
@@ -138,6 +152,9 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
     }
 
 
+    /**
+     * Shows a confirmation dialog before accepting or declining a ride request.
+     */
     private void showConfirmationDialog(RideRequestResponse rideRequest, String title, String message, String answerStatus){
         new AlrertDialog.Builder(getContext())
         .setTitle(title)
@@ -148,6 +165,9 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
     }
 
 
+    /**
+     * Sends a request to the server to accept or decline a ride request.
+     */
     private void answerRideRequest(Long rideRequestId, String answerStatus) {
         ProgressDialog progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Processing request...");
@@ -169,6 +189,7 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
                     Toast.makeText(getContext(), "Failed to process the request", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<RideRequestResponse> call, Throwable t) {
                 progressDialog.dismiss();
