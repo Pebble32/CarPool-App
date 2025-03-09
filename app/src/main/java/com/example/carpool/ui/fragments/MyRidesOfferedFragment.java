@@ -190,6 +190,16 @@ public class MyRidesOfferedFragment extends Fragment implements MyRidesOfferedAd
                 .show();
     }
 
+    @Override
+    public void onViewRequestsClick(RideOfferResponse rideOffer) {
+        Log.d(TAG, "onViewRequestsClick: Viewing requests for ride offer #" + rideOffer.getId());
+        Fragment rideRequestsFragment = RideRequestsFragment.newInstance(rideOffer.getId());
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, rideRequestsFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
     private void deleteRideOffer(Long rideId) {
         Log.d(TAG, "deleteRideOffer: Deleting ride offer #" + rideId);
         ProgressDialog progressDialog = new ProgressDialog(requireContext());

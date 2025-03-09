@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.carpool.R;
 import com.example.carpool.data.models.RideOfferResponse;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -21,6 +24,7 @@ import java.util.List;
  */
 public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAdapter.ViewHolder> {
 
+    private static final String TAG = "MyRidesOfferedAdapter";
     private final List<RideOfferResponse> rideOffers;
     private final OnRideOfferActionListener listener;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
@@ -29,6 +33,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
         void onEditClick(RideOfferResponse rideOffer);
         void onDeleteClick(RideOfferResponse rideOffer);
         void onMarkFinishedClick(RideOfferResponse rideOffer);
+        void onViewRequestsClick(RideOfferResponse rideOffer);
     }
 
     public MyRidesOfferedAdapter(List<RideOfferResponse> rideOffers, OnRideOfferActionListener listener) {
@@ -49,11 +54,31 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
 
         holder.startLocation.setText(offer.getStartLocation());
         holder.endLocation.setText(offer.getEndLocation());
-        holder.departureTime.setText(offer.getDepartureTime().format(String.valueOf(formatter)));
+        
+        // Fixed date formatting
+        try {
+            String departureTimeStr = offer.getDepartureTime();
+            if (departureTimeStr.contains("T")) {
+                LocalDateTime dateTime = LocalDateTime.parse(departureTimeStr);
+                holder.departureTime.setText(dateTime.format(formatter));
+            } else {
+                holder.departureTime.setText(departureTimeStr);
+            }
+        } catch (DateTimeParseException e) {
+            Log.e(TAG, "Error formatting date: " + e.getMessage(), e);
+            holder.departureTime.setText(offer.getDepartureTime());
+        }
+        
         holder.availableSeats.setText(String.format("Available seats: %d", offer.getAvailableSeats()));
 
         // Configure buttons based on ride status
         holder.buttonLayout.setVisibility(View.VISIBLE);
+
+        // Configure View Requests button
+        if (holder.viewRequestsButton != null) {
+            holder.viewRequestsButton.setVisibility(View.VISIBLE);
+            holder.viewRequestsButton.setOnClickListener(v -> listener.onViewRequestsClick(offer));
+        }
 
         // Replace the join button with a "Mark Finished" button if it exists
         if (holder.joinButton != null) {
@@ -112,7 +137,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView startLocation, endLocation, departureTime, availableSeats;
-        Button editButton, deleteButton, joinButton;
+        Button editButton, deleteButton, joinButton, viewRequestsButton;
         LinearLayout buttonLayout;
 
         public ViewHolder(View itemView) {
@@ -124,6 +149,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
             joinButton = itemView.findViewById(R.id.joinButton);
+            viewRequestsButton = itemView.findViewById(R.id.viewRequestsButton);
             buttonLayout = itemView.findViewById(R.id.buttonLayout);
         }
     }
