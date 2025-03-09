@@ -94,7 +94,7 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
      * and populates the joinRequestedRideOfferIds set.
      */
     private void fetchUserJoinRequests() {
-        // Assumes RideRequestApi.getUserRideRequests() returns List<RideRequestResponse>
+        
         rideRequestApi.getUserRideRequests().enqueue(new Callback<List<RideRequestResponse>>() {
             @Override
             public void onResponse(Call<List<RideRequestResponse>> call, Response<List<RideRequestResponse>> response) {
@@ -231,5 +231,18 @@ public class RideOffersFragment extends Fragment implements RideOffersAdapter.On
         recyclerView.setAdapter(adapter);
         currentPage = 0;
         loadRideOffers();
+    }
+
+
+    /**
+     * Handles the click event for viewing ride requests.
+     */
+    @Override
+    public void onViewRequestsClick(RideOfferResponse rideOffer) {
+    Fragment rideRequestsFragment = RideRequestsFragment.newInstance(rideOffer.getId());
+    getActivity().getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container, rideRequestsFragment)
+            .addToBackStack(null)
+            .commit();
     }
 }

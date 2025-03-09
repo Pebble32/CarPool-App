@@ -1,6 +1,8 @@
 package com.example.carpool.data.api;
 
 import android.util.Log;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import okhttp3.Interceptor;
@@ -10,13 +12,15 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.time.LocalDateTime;
+
 /**
  * Singleton class to manage Retrofit instance for network operations.
  * Enhanced with timeouts, logging, and custom Gson configuration.
  */
 public class RetrofitClient {
     private static final String TAG = "RetrofitClient";
-    private static final String BASE_URL = "http://10.0.2.2:8088/api/v1/"; // Keep your current URL
+    private static final String BASE_URL = "http://10.0.2.2:8088/api/v1/"; 
     private static Retrofit retrofit = null;
     private static final InMemoryCookieJar cookieJar = new InMemoryCookieJar();
 
@@ -71,11 +75,16 @@ public class RetrofitClient {
                         .cookieJar(cookieJar)
                         .build();
 
-                // Build Retrofit instance with custom Gson configuration
+                // Create Gson with our DateTypeAdapter
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(LocalDateTime.class, new DateTypeAdapter())
+                        .create();
+
+                // Build Retrofit instance
                 retrofit = new Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .client(client)
-                        .addConverterFactory(GsonConverterFactory.create(CustomGsonConfig.createGson()))
+                        .addConverterFactory(GsonConverterFactory.create(gson))
                         .build();
 
                 Log.d(TAG, "Retrofit client initialized with BASE_URL: " + BASE_URL);
