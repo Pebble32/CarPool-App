@@ -31,7 +31,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RideOfferedDetailsFragment extends Fragment {
-    private static final String TAG = "RideOfferedDetailsFragment";
+    private static final String TAG = "RideOfferedDetailsFrag";
     private static final String ARG_RIDE_OFFER = "ride_offer";
 
     private RideOfferResponse rideOffer;
@@ -52,8 +52,10 @@ public class RideOfferedDetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate called");
         if (getArguments() != null) {
             rideOffer = (RideOfferResponse) getArguments().getSerializable(ARG_RIDE_OFFER);
+            Log.d(TAG, "Loaded ride offer: " + (rideOffer != null ? rideOffer.getId() : "null"));
         }
 
         rideOfferApi = RetrofitClient.getInstance().create(RideOfferApi.class);
@@ -62,6 +64,7 @@ public class RideOfferedDetailsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView called");
         View view = inflater.inflate(R.layout.fragment_ride_offered_details, container, false);
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
@@ -79,8 +82,13 @@ public class RideOfferedDetailsFragment extends Fragment {
         buttonShowRoute = view.findViewById(R.id.buttonShowRoute);
         progressIndicator = view.findViewById(R.id.progressIndicator);
 
-        // Add debug logging
-        Log.d(TAG, "onCreateView: buttonShowRoute is " + (buttonShowRoute != null ? "found" : "NULL"));
+        Log.d(TAG, "buttonShowRoute found: " + (buttonShowRoute != null));
+
+        if (buttonShowRoute != null) {
+            buttonShowRoute.setVisibility(View.VISIBLE);
+        } else {
+            Log.e(TAG, "buttonShowRoute is NULL! Check your layout XML ID");
+        }
 
         populateRideDetails();
         setupButtons();
@@ -89,7 +97,10 @@ public class RideOfferedDetailsFragment extends Fragment {
     }
 
     private void populateRideDetails() {
+        Log.d(TAG, "populateRideDetails called");
+
         if (rideOffer != null) {
+            Log.d(TAG, "Populating ride offer details: " + rideOffer.getId());
             textViewStartLocation.setText(rideOffer.getStartLocation());
             textViewEndLocation.setText(rideOffer.getEndLocation());
             textViewDepartureTime.setText(rideOffer.getDepartureTime());
@@ -120,20 +131,47 @@ public class RideOfferedDetailsFragment extends Fragment {
             boolean isActiveRide = "AVAILABLE".equals(rideOffer.getStatus()) || "UNAVAILABLE".equals(rideOffer.getStatus());
             buttonEdit.setVisibility(isActiveRide ? View.VISIBLE : View.GONE);
             buttonMarkFinished.setVisibility(isActiveRide ? View.VISIBLE : View.GONE);
+        } else {
+            Log.w(TAG, "rideOffer is null, cannot populate ride details");
         }
     }
 
     private void setupButtons() {
-        // Debug logging for button setup
-        Log.d(TAG, "setupButtons: Setting up buttons");
-        Log.d(TAG, "setupButtons: buttonShowRoute is " +
-                (buttonShowRoute != null ? "found" : "NULL") +
-                ", visibility is " +
-                (buttonShowRoute != null ?
-                        (buttonShowRoute.getVisibility() == View.VISIBLE ? "VISIBLE" :
-                                buttonShowRoute.getVisibility() == View.GONE ? "GONE" : "INVISIBLE") :
-                        "unknown"));
-        Log.d(TAG, "setupButtons: rideOffer is " + (rideOffer != null ? "not null" : "NULL"));
+        Log.d(TAG, "setupButtons called");
+
+        // Show Route button - ALWAYS visible
+        if (buttonShowRoute != null) {
+            Log.d(TAG, "Setting up Show Route button");
+            buttonShowRoute.setVisibility(View.VISIBLE);
+            buttonShowRoute.setOnClickListener(v -> {
+                Log.d(TAG, "Show Route button clicked");
+
+                if (rideOffer != null &&
+                        rideOffer.getStartLocation() != null &&
+                        rideOffer.getEndLocation() != null) {
+
+                    Log.d(TAG, "Navigating to map view with route from " +
+                            rideOffer.getStartLocation() + " to " + rideOffer.getEndLocation());
+
+                    MapViewFragment mapFragment = MapViewFragment.newInstance(
+                            rideOffer.getStartLocation(),
+                            rideOffer.getEndLocation()
+                    );
+
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, mapFragment)
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    Log.e(TAG, "Cannot show route - rideOffer is null or missing locations");
+                    Toast.makeText(requireContext(),
+                            "Cannot show route - location information is missing",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "buttonShowRoute is null in setupButtons()");
+        }
 
         buttonEdit.setOnClickListener(v -> {
             if (rideOffer != null) {
@@ -166,31 +204,9 @@ public class RideOfferedDetailsFragment extends Fragment {
                         .show();
             }
         });
-
-        buttonShowRoute.setOnClickListener(v -> {
-            Log.d(TAG, "Show Route button clicked");
-            if (rideOffer != null) {
-                Log.d(TAG, "Navigating to MapViewFragment with start=" + rideOffer.getStartLocation() + ", end=" + rideOffer.getEndLocation());
-
-                // Navigate to the MapViewFragment
-                MapViewFragment mapFragment = MapViewFragment.newInstance(
-                        rideOffer.getStartLocation(),
-                        rideOffer.getEndLocation()
-                );
-
-                requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, mapFragment)
-                        .addToBackStack(null)
-                        .commit();
-            } else {
-                Log.e(TAG, "Cannot show route: rideOffer is null");
-                Toast.makeText(requireContext(), "Ride details not available", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void deleteRideOffer() {
-        // Existing code (unchanged)
         if (rideOffer == null || !isAdded()) {
             return;
         }
@@ -224,7 +240,6 @@ public class RideOfferedDetailsFragment extends Fragment {
     }
 
     private void markRideAsFinished() {
-        // Existing code (unchanged)
         if (rideOffer == null || !isAdded()) {
             return;
         }

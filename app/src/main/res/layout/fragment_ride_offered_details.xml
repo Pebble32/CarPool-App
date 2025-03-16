@@ -153,29 +153,29 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Action Buttons - TWO ROW LAYOUT -->
+            <!-- Action Buttons - Modified to ensure Show Route is always visible -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_margin="16dp">
 
-                <!-- First row of buttons -->
+                <!-- First row - Show Route button always visible -->
+                <Button
+                    android:id="@+id/buttonShowRoute"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Show Route"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="visible"/>
+
+                <!-- Second row - Edit and Delete -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center"
                     android:layout_marginBottom="8dp">
-
-                    <Button
-                        android:id="@+id/buttonShowRoute"
-                        style="?attr/materialButtonOutlinedStyle"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="Show Route"
-                        android:layout_marginEnd="8dp"/>
 
                     <Button
                         android:id="@+id/buttonEdit"
@@ -183,22 +183,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Edit"/>
-                </LinearLayout>
-
-                <!-- Second row of buttons -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
-
-                    <Button
-                        android:id="@+id/buttonMarkFinished"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="Mark Finished"
+                        android:text="Edit"
                         android:layout_marginEnd="8dp"/>
 
                     <Button
@@ -210,6 +195,13 @@
                         android:text="Delete"
                         android:textColor="@color/design_default_color_error"/>
                 </LinearLayout>
+
+                <!-- Third row - Mark Finished -->
+                <Button
+                    android:id="@+id/buttonMarkFinished"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mark Finished"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
