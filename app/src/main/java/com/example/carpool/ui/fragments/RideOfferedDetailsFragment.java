@@ -1,7 +1,6 @@
 package com.example.carpool.ui.fragments;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,8 +19,11 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.RideOfferApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.models.RideOfferResponse;
+import com.example.carpool.data.models.RideStatus;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+
+import java.io.Serializable;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -42,7 +44,7 @@ public class RideOfferedDetailsFragment extends Fragment {
     public static RideOfferedDetailsFragment newInstance(RideOfferResponse rideOffer) {
         RideOfferedDetailsFragment fragment = new RideOfferedDetailsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_RIDE_OFFER, rideOffer);
+        args.putSerializable(ARG_RIDE_OFFER, (Serializable) rideOffer);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,6 +78,9 @@ public class RideOfferedDetailsFragment extends Fragment {
         buttonMarkFinished = view.findViewById(R.id.buttonMarkFinished);
         buttonShowRoute = view.findViewById(R.id.buttonShowRoute);
         progressIndicator = view.findViewById(R.id.progressIndicator);
+
+        // Add debug logging
+        Log.d(TAG, "onCreateView: buttonShowRoute is " + (buttonShowRoute != null ? "found" : "NULL"));
 
         populateRideDetails();
         setupButtons();
@@ -119,6 +124,17 @@ public class RideOfferedDetailsFragment extends Fragment {
     }
 
     private void setupButtons() {
+        // Debug logging for button setup
+        Log.d(TAG, "setupButtons: Setting up buttons");
+        Log.d(TAG, "setupButtons: buttonShowRoute is " +
+                (buttonShowRoute != null ? "found" : "NULL") +
+                ", visibility is " +
+                (buttonShowRoute != null ?
+                        (buttonShowRoute.getVisibility() == View.VISIBLE ? "VISIBLE" :
+                                buttonShowRoute.getVisibility() == View.GONE ? "GONE" : "INVISIBLE") :
+                        "unknown"));
+        Log.d(TAG, "setupButtons: rideOffer is " + (rideOffer != null ? "not null" : "NULL"));
+
         buttonEdit.setOnClickListener(v -> {
             if (rideOffer != null) {
                 Fragment editFragment = EditRideFragment.newInstance(rideOffer);
@@ -152,7 +168,10 @@ public class RideOfferedDetailsFragment extends Fragment {
         });
 
         buttonShowRoute.setOnClickListener(v -> {
+            Log.d(TAG, "Show Route button clicked");
             if (rideOffer != null) {
+                Log.d(TAG, "Navigating to MapViewFragment with start=" + rideOffer.getStartLocation() + ", end=" + rideOffer.getEndLocation());
+
                 // Navigate to the MapViewFragment
                 MapViewFragment mapFragment = MapViewFragment.newInstance(
                         rideOffer.getStartLocation(),
@@ -163,11 +182,15 @@ public class RideOfferedDetailsFragment extends Fragment {
                         .replace(R.id.fragment_container, mapFragment)
                         .addToBackStack(null)
                         .commit();
+            } else {
+                Log.e(TAG, "Cannot show route: rideOffer is null");
+                Toast.makeText(requireContext(), "Ride details not available", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void deleteRideOffer() {
+        // Existing code (unchanged)
         if (rideOffer == null || !isAdded()) {
             return;
         }
@@ -201,6 +224,7 @@ public class RideOfferedDetailsFragment extends Fragment {
     }
 
     private void markRideAsFinished() {
+        // Existing code (unchanged)
         if (rideOffer == null || !isAdded()) {
             return;
         }
@@ -238,10 +262,5 @@ public class RideOfferedDetailsFragment extends Fragment {
                 Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    // Helper enum for RideStatus
-    public enum RideStatus {
-        AVAILABLE, UNAVAILABLE, FINISHED, CANCELLED
     }
 }
