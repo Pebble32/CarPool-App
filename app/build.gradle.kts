@@ -46,8 +46,26 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.swiperefreshlayout)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation(libs.logging.interceptor)
 
+    // OpenStreetMap dependencies
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmdroid.mapsforge)
+    implementation(libs.osmdroid.geopackage) {
+        exclude(group = "com.j256.ormlite", module = "ormlite-core")
+        exclude(group = "com.j256.ormlite", module = "ormlite-android")
+    }
+    implementation(libs.osmdroid.wms)
+
+    implementation("com.github.MKergall:osmbonuspack:6.9.0") {
+        exclude(group = "com.j256.ormlite", module = "ormlite-core")
+        exclude(group = "com.j256.ormlite", module = "ormlite-android")
+    }
+
+    implementation("com.j256.ormlite:ormlite-android:6.1")
+
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
