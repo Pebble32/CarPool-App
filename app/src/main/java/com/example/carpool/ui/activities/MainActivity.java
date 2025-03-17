@@ -11,6 +11,7 @@ import com.example.carpool.ui.fragments.CreateRideFragment;
 import com.example.carpool.ui.fragments.LoginFragment;
 import com.example.carpool.ui.fragments.MyRidesFragment;
 import com.example.carpool.ui.fragments.RideOffersFragment;
+import com.example.carpool.ui.fragments.RoutesFragment;
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeFragment(int navFragmentId, boolean updateNav) {
         Fragment selectedFragment = null;
-
+    
         if (navFragmentId == R.id.nav_my_rides) {
             selectedFragment = new MyRidesFragment();
         } else if (navFragmentId == R.id.nav_browse) {
@@ -89,14 +90,16 @@ public class MainActivity extends AppCompatActivity {
             selectedFragment = new CreateRideFragment();
         } else if (navFragmentId == R.id.nav_profile) {
             selectedFragment = null;
+        } else if (navFragmentId == R.id.nav_maps) {
+            selectedFragment = new RoutesFragment();
         }
-
+    
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, selectedFragment)
                     .commit();
         }
-
+    
         if (updateNav) bottomNavigationView.setSelectedItemId(navFragmentId);
     }
 

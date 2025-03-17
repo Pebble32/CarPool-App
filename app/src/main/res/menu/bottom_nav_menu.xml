@@ -13,6 +13,10 @@
         android:title="Create Ride"
         android:icon="@drawable/nav_create_ride"/>
     <item
+        android:id="@+id/nav_maps"
+        android:title="Maps"
+        android:icon="@drawable/nav_map"/>
+    <item
         android:id="@+id/nav_profile"
         android:title="Profile"
         android:icon="@drawable/nav_profile"/>
