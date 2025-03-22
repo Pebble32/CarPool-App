@@ -200,6 +200,18 @@ public class MyRidesOfferedFragment extends Fragment implements MyRidesOfferedAd
                 .commit();
     }
 
+    @Override
+    public void onRouteClick(RideOfferResponse rideOffer) {
+        Log.d(TAG, "onRouteClick: Viewing route for ride offer #" + rideOffer.getId());
+        Fragment mapRouteFragment = MapRouteFragment.newInstance(
+                rideOffer.getStartLocation(),
+                rideOffer.getEndLocation());
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, mapRouteFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
     private void deleteRideOffer(Long rideId) {
         Log.d(TAG, "deleteRideOffer: Deleting ride offer #" + rideId);
         ProgressDialog progressDialog = new ProgressDialog(requireContext());

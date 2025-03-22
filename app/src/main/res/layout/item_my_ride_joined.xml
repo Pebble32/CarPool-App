@@ -58,7 +58,7 @@
             android:text="Ride Status: AVAILABLE"
             android:textAppearance="?attr/textAppearanceBody2"
             android:layout_marginTop="4dp" />
-            
+
         <TextView
             android:id="@+id/textViewDriverEmail"
             android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
             android:text="Driver: driver@example.com"
             android:textAppearance="?attr/textAppearanceBody2"
             android:layout_marginTop="4dp" />
-            
+
         <TextView
             android:id="@+id/textViewRequestDate"
             android:layout_width="wrap_content"
@@ -88,6 +88,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel" />
+
+            <Button
+                android:id="@+id/buttonViewRoute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Route" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
