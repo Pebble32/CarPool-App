@@ -33,6 +33,7 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
 
     public interface OnRideRequestActionListener {
         void onCancelRequestClick(RideRequestResponse rideRequest);
+        void onViewRouteClick(RideOfferResponse rideOffer);
     }
 
     public MyRidesJoinedAdapter(List<RideRequestResponse> rideRequests, Map<Long, RideOfferResponse> rideOffersMap, OnRideRequestActionListener listener) {
@@ -116,6 +117,12 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
                 } else {
                     holder.textViewDepartureTime.setText("Departure: Not specified");
                 }
+
+                // Configure the Route button
+                if (holder.buttonViewRoute != null) {
+                    holder.buttonViewRoute.setVisibility(View.VISIBLE);
+                    holder.buttonViewRoute.setOnClickListener(v -> listener.onViewRouteClick(rideOffer));
+                }
             } else {
                 // No ride offer details available, display placeholder
                 Log.d(TAG, "No ride offer details for request ID: " + request.getId());
@@ -124,6 +131,11 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
                 holder.textViewDriverEmail.setVisibility(View.GONE);
                 holder.textViewRideStatus.setVisibility(View.GONE);
                 holder.textViewDepartureTime.setVisibility(View.GONE);
+
+                // Hide route button if no ride offer details
+                if (holder.buttonViewRoute != null) {
+                    holder.buttonViewRoute.setVisibility(View.GONE);
+                }
             }
 
             // Set request date
@@ -154,7 +166,7 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
         TextView textViewRequestStatus, textViewStartLocation, textViewEndLocation,
                 textViewDepartureTime, textViewRideStatus, textViewDriverEmail,
                 textViewRequestDate;
-        Button buttonCancelRequest;
+        Button buttonCancelRequest, buttonViewRoute;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -166,6 +178,7 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
             textViewDriverEmail = itemView.findViewById(R.id.textViewDriverEmail);
             textViewRequestDate = itemView.findViewById(R.id.textViewRequestDate);
             buttonCancelRequest = itemView.findViewById(R.id.buttonCancelRequest);
+            buttonViewRoute = itemView.findViewById(R.id.buttonViewRoute);
 
             // Add null checks for views
             if (textViewRequestStatus == null) Log.e(TAG, "textViewRequestStatus view not found");
@@ -173,6 +186,7 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
             if (textViewEndLocation == null) Log.e(TAG, "textViewEndLocation view not found");
             if (textViewDepartureTime == null) Log.e(TAG, "textViewDepartureTime view not found");
             if (buttonCancelRequest == null) Log.e(TAG, "buttonCancelRequest view not found");
+            if (buttonViewRoute == null) Log.e(TAG, "buttonViewRoute view not found");
         }
     }
 }

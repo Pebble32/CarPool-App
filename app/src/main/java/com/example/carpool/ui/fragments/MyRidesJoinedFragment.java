@@ -29,7 +29,6 @@ import com.example.carpool.data.models.RideRequestResponse;
 import com.example.carpool.ui.adapters.MyRidesJoinedAdapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -392,6 +391,30 @@ public class MyRidesJoinedFragment extends Fragment implements MyRidesJoinedAdap
         } catch (Exception e) {
             Log.e(TAG, "onCancelRequestClick: Exception showing dialog", e);
             Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onViewRouteClick(RideOfferResponse rideOffer) {
+        if (!isAdded() || rideOffer == null) {
+            return;
+        }
+
+        Log.d(TAG, "onViewRouteClick: Viewing route for ride offer ID: " + rideOffer.getId());
+
+        try {
+            // Navigate to the map fragment
+            Fragment mapRouteFragment = MapRouteFragment.newInstance(
+                    rideOffer.getStartLocation(),
+                    rideOffer.getEndLocation());
+
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, mapRouteFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } catch (Exception e) {
+            Log.e(TAG, "onViewRouteClick: Exception navigating to map", e);
+            Toast.makeText(getContext(), "Error showing route: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
