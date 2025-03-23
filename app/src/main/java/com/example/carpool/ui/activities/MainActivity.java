@@ -10,6 +10,7 @@ import com.example.carpool.R;
 import com.example.carpool.ui.fragments.CreateRideFragment;
 import com.example.carpool.ui.fragments.LoginFragment;
 import com.example.carpool.ui.fragments.MyRidesFragment;
+import com.example.carpool.ui.fragments.ProfileFragment;
 import com.example.carpool.ui.fragments.RideOffersFragment;
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.FragmentManager;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (navFragmentId == R.id.nav_create_ride) {
             selectedFragment = new CreateRideFragment();
         } else if (navFragmentId == R.id.nav_profile) {
-            selectedFragment = null;
+            selectedFragment = new ProfileFragment();
         }
 
         if (selectedFragment != null) {

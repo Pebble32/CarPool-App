@@ -16,4 +16,7 @@ public interface AuthApi {
 
     @POST("auth/register")
     Call<ResponseBody> register(@Body com.example.carpool.data.models.RegisterRequest request);
+
+    @POST("auth/get-user")
+    Call<ResponseBody> getUser();
 }
