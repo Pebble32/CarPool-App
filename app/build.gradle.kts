@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -47,6 +48,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.swiperefreshlayout)
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation(libs.firebase.messaging)
 
 
     testImplementation(libs.junit)
