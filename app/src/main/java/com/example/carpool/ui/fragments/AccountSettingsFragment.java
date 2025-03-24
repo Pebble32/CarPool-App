@@ -1,11 +1,15 @@
 package com.example.carpool.ui.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +36,7 @@ import retrofit2.Call;
 
 public class AccountSettingsFragment extends Fragment {
 
+    private ImageView imageViewProfilePicture;
     private EditText editTextEmail, editTextPassword, editTextFirstName, editTextLastName, editTextPhone;
     private Button buttonSaveChanges;
     private Button buttonUploadProfilePicture;
@@ -57,6 +62,8 @@ public class AccountSettingsFragment extends Fragment {
 
         // set text in the EditText fields to the user's current information
         getCurrentInformation();
+        // set the user's profile picture
+        getProfilePicture();
 
         buttonSaveChanges.setOnClickListener(v -> saveChanges());
         buttonUploadProfilePicture.setOnClickListener(v -> uploadProfilePicture());
@@ -151,6 +158,33 @@ public class AccountSettingsFragment extends Fragment {
      */
     private void uploadProfilePicture() {
 
+    }
+
+    private void getProfilePicture(){
+        // Fetch user profile picture from the server and set the profile picture
+        userApi.getProfilePicture().enqueue(new retrofit2.Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String profilePictureString = response.body().string();
+                        byte[] decodedString = Base64.decode(profilePictureString, Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        imageViewProfilePicture.setImageBitmap(decodedByte); // veit ekki hvort þetta virki
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "Failed to decode profile picture", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }

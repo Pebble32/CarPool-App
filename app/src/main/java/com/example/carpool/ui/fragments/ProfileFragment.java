@@ -1,5 +1,6 @@
 package com.example.carpool.ui.fragments;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
+import com.example.carpool.data.api.UserApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +26,8 @@ import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import android.graphics.Bitmap;
+import android.util.Base64;
 
 public class ProfileFragment extends Fragment {
 
@@ -33,6 +37,7 @@ public class ProfileFragment extends Fragment {
     private Button buttonPersonalInformation;
     private Button buttonNotifications;
     private AuthApi authApi;
+    private UserApi userApi;
 
     @Nullable
     @Override
@@ -47,9 +52,11 @@ public class ProfileFragment extends Fragment {
         buttonPersonalInformation = view.findViewById(R.id.buttonPersonalInformation);
         buttonNotifications = view.findViewById(R.id.buttonNotifications);
         authApi = RetrofitClient.getInstance().create(AuthApi.class);
+        userApi = RetrofitClient.getInstance().create(UserApi.class);
 
         // Set the user's profile picture, name, and email
         getUserInformation();
+        getProfilePicture();
 
         buttonPersonalInformation.setOnClickListener(v -> {
             // Switch to AccountSettingsFragment
@@ -99,5 +106,32 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+    }
+
+    private void getProfilePicture(){
+        // Fetch user profile picture from the server and set the profile picture
+        userApi.getProfilePicture().enqueue(new retrofit2.Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String profilePictureString = response.body().string();
+                        byte[] decodedString = Base64.decode(profilePictureString, Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        imageViewProfilePicture.setImageBitmap(decodedByte); // veit ekki hvort þetta virki
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "Failed to decode profile picture", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
