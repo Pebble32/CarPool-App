@@ -53,6 +53,11 @@ public class ProfileFragment extends Fragment {
 
         buttonPersonalInformation.setOnClickListener(v -> {
             // Switch to AccountSettingsFragment
+            AccountSettingsFragment accountSettingsFragment = new AccountSettingsFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, accountSettingsFragment)
+                    .addToBackStack(null)
+                    .commit();
 
         });
 
@@ -65,7 +70,7 @@ public class ProfileFragment extends Fragment {
 
     private void getUserInformation() {
         // Fetch user information from the server and set the profile picture, name, and email
-        authApi.getUser().enqueue(new retrofit2.Callback<ResponseBody>() {
+        authApi.getUser().enqueue(new retrofit2.Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
