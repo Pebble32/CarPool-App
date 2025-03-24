@@ -50,6 +50,7 @@ public class AccountSettingsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account_settings, container, false);
+        imageViewProfilePicture = view.findViewById(R.id.imageViewProfilePicture);
         editTextEmail = view.findViewById(R.id.editTextTextEmailAddress);
         editTextPassword = view.findViewById(R.id.editTextPassword);
         editTextFirstName = view.findViewById(R.id.editTextFirstname);
