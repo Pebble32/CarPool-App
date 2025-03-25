@@ -48,6 +48,10 @@ dependencies {
     implementation(libs.swiperefreshlayout)
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.android.libraries.places:places:3.1.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

@@ -34,6 +34,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
         void onDeleteClick(RideOfferResponse rideOffer);
         void onMarkFinishedClick(RideOfferResponse rideOffer);
         void onViewRequestsClick(RideOfferResponse rideOffer);
+        void onRouteClick(RideOfferResponse rideOffer);
     }
 
     public MyRidesOfferedAdapter(List<RideOfferResponse> rideOffers, OnRideOfferActionListener listener) {
@@ -54,25 +55,31 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
 
         holder.startLocation.setText(offer.getStartLocation());
         holder.endLocation.setText(offer.getEndLocation());
-        
-        // Fixed date formatting
+
+        // Format date
         try {
             String departureTimeStr = offer.getDepartureTime();
-            if (departureTimeStr.contains("T")) {
+            if (departureTimeStr != null && departureTimeStr.contains("T")) {
                 LocalDateTime dateTime = LocalDateTime.parse(departureTimeStr);
                 holder.departureTime.setText(dateTime.format(formatter));
             } else {
-                holder.departureTime.setText(departureTimeStr);
+                holder.departureTime.setText(departureTimeStr != null ? departureTimeStr : "Not specified");
             }
         } catch (DateTimeParseException e) {
             Log.e(TAG, "Error formatting date: " + e.getMessage(), e);
-            holder.departureTime.setText(offer.getDepartureTime());
+            holder.departureTime.setText(offer.getDepartureTime() != null ? offer.getDepartureTime() : "Not specified");
         }
-        
+
         holder.availableSeats.setText(String.format("Available seats: %d", offer.getAvailableSeats()));
 
         // Configure buttons based on ride status
         holder.buttonLayout.setVisibility(View.VISIBLE);
+
+        // Always show Route button
+        if (holder.routeButton != null) {
+            holder.routeButton.setVisibility(View.VISIBLE);
+            holder.routeButton.setOnClickListener(v -> listener.onRouteClick(offer));
+        }
 
         // Configure View Requests button
         if (holder.viewRequestsButton != null) {
@@ -137,7 +144,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView startLocation, endLocation, departureTime, availableSeats;
-        Button editButton, deleteButton, joinButton, viewRequestsButton;
+        Button editButton, deleteButton, joinButton, viewRequestsButton, routeButton;
         LinearLayout buttonLayout;
 
         public ViewHolder(View itemView) {
@@ -150,6 +157,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
             deleteButton = itemView.findViewById(R.id.deleteButton);
             joinButton = itemView.findViewById(R.id.joinButton);
             viewRequestsButton = itemView.findViewById(R.id.viewRequestsButton);
+            routeButton = itemView.findViewById(R.id.routeButton);
             buttonLayout = itemView.findViewById(R.id.buttonLayout);
         }
     }
