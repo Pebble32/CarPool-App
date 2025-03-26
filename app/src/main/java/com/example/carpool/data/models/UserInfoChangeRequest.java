@@ -5,11 +5,11 @@ public class UserInfoChangeRequest {
     private String lastName;
     private String phoneNumber;
 
-    // Default constructor
+
     public UserInfoChangeRequest() {
     }
 
-    // Constructor with all fields
+   
     public UserInfoChangeRequest(String firstName, String lastName, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
