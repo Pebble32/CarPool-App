@@ -1,7 +1,9 @@
 package com.example.carpool.ui.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,8 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
-import java.io.FileOutputStream;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -32,7 +33,6 @@ import com.example.carpool.ui.activities.MainActivity;
 import com.example.carpool.utils.ProfilePictureUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
-import java.io.File;
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -42,38 +42,46 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class ProfileManagementFragment extends Fragment {
 
-    private static final String TAG = "ProfileManagementFrag";
-    private static final int REQUEST_CAMERA_PERMISSION = 100;
-    private static final int REQUEST_STORAGE_PERMISSION = 101;
+    private static final String TAG = "ProfileManagementFragment";
+    private static final String PREFS_NAME = "ProfilePrefs";
+    private static final String PREF_PROFILE_PICTURE = "ProfilePicture";
 
     private EditText editTextFirstName, editTextLastName, editTextPhone;
     private Button buttonUpdateProfile, buttonChangePicture;
     private ImageView imageViewProfilePicture;
     private ProgressBar progressBar;
 
-    private File photoFile;
-    private Uri photoUri;
-    private retrofit2.Retrofit retrofit;
+    private Bitmap currentProfileBitmap;
+    private Retrofit retrofit;
 
-    // Activity result launcher for camera
     private ActivityResultLauncher<Intent> takePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    processCameraImage();
+                    Bundle extras = result.getData().getExtras();
+                    currentProfileBitmap = (Bitmap) extras.get("data");
+                    imageViewProfilePicture.setImageBitmap(currentProfileBitmap);
+                    uploadProfilePicture(currentProfileBitmap);
                 }
             });
 
-    // Activity result launcher for gallery
     private ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri selectedImageUri = result.getData().getData();
-                    processGalleryImage(selectedImageUri);
+                    try {
+                        currentProfileBitmap = ProfilePictureUtils.loadBitmapFromUri(requireContext(), selectedImageUri);
+                        imageViewProfilePicture.setImageBitmap(currentProfileBitmap);
+                        uploadProfilePicture(currentProfileBitmap);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error loading image from gallery", e);
+                        Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -92,26 +100,122 @@ public class ProfileManagementFragment extends Fragment {
 
         retrofit = RetrofitClient.getInstance();
 
-        // Load user profile data
-        loadUserProfile();
+        // Load saved profile picture
+        loadSavedProfilePicture();
 
         // Set click listeners
         buttonUpdateProfile.setOnClickListener(v -> updateUserProfile());
         buttonChangePicture.setOnClickListener(v -> showPictureOptions());
 
+        // Load user profile data
+        loadUserProfile();
+
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((MainActivity) requireActivity()).showBottomNav(true);
+    private void loadSavedProfilePicture() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String savedProfilePicture = prefs.getString(PREF_PROFILE_PICTURE, null);
+        
+        if (savedProfilePicture != null) {
+            try {
+                Bitmap savedBitmap = ProfilePictureUtils.base64ToBitmap(savedProfilePicture);
+                if (savedBitmap != null) {
+                    imageViewProfilePicture.setImageBitmap(savedBitmap);
+                    currentProfileBitmap = savedBitmap;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading saved profile picture", e);
+            }
+        }
     }
 
+    private void saveProfilePicture(Bitmap bitmap) {
+        if (bitmap != null) {
+            String base64Picture = ProfilePictureUtils.bitmapToBase64(bitmap);
+            SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString(PREF_PROFILE_PICTURE, base64Picture).apply();
+        }
+    }
+
+    private void uploadProfilePicture(Bitmap bitmap) {
+        if (bitmap == null) return;
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Resize the bitmap to reduce file size
+        Bitmap resizedBitmap = ProfilePictureUtils.resizeBitmap(bitmap, 800, 800);
+
+        // Temporarily save the bitmap
+        saveProfilePicture(resizedBitmap);
+
+        // Convert bitmap to file
+        try {
+            // Save bitmap to a temporary file
+            java.io.File tempFile = java.io.File.createTempFile("profile", ".jpg", requireContext().getCacheDir());
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile);
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.close();
+
+            // Create RequestBody
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), tempFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("file", tempFile.getName(), requestFile);
+
+            // Make API call
+            retrofit.create(com.example.carpool.data.api.UserApi.class)
+                    .uploadProfilePicture(body)
+                    .enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            progressBar.setVisibility(View.GONE);
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Profile picture updated", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to upload picture", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "Error uploading picture", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (IOException e) {
+            Log.e(TAG, "Error preparing image for upload", e);
+            Toast.makeText(getContext(), "Failed to prepare image", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void showPictureOptions() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_picture_options, null);
+        
+        Button btnCamera = sheetView.findViewById(R.id.btnCamera);
+        Button btnGallery = sheetView.findViewById(R.id.btnGallery);
+        
+        btnCamera.setOnClickListener(v -> {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            takePictureLauncher.launch(takePictureIntent);
+            bottomSheetDialog.dismiss();
+        });
+        
+        btnGallery.setOnClickListener(v -> {
+            Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryLauncher.launch(pickPhotoIntent);
+            bottomSheetDialog.dismiss();
+        });
+        
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+    }
+
+    // Rest of the methods remain the same as in your original implementation
     private void loadUserProfile() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Load user info
         retrofit.create(com.example.carpool.data.api.UserApi.class).getUserInfo()
                 .enqueue(new Callback<com.example.carpool.data.models.UserResponse>() {
                     @Override
@@ -122,8 +226,8 @@ public class ProfileManagementFragment extends Fragment {
                             editTextLastName.setText(response.body().getLastName());
                             editTextPhone.setText(response.body().getPhoneNumber());
                             
-                            // Now load profile picture
-                            loadProfilePicture();
+                            // Load profile picture from the server (Optional - depends on your backend implementation)
+                            loadProfilePictureFromServer();
                         } else {
                             Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
@@ -138,7 +242,7 @@ public class ProfileManagementFragment extends Fragment {
                 });
     }
 
-    private void loadProfilePicture() {
+    private void loadProfilePictureFromServer() {
         retrofit.create(com.example.carpool.data.api.UserApi.class).getProfilePicture()
                 .enqueue(new Callback<String>() {
                     @Override
@@ -146,185 +250,58 @@ public class ProfileManagementFragment extends Fragment {
                         progressBar.setVisibility(View.GONE);
                         if (response.isSuccessful() && response.body() != null) {
                             try {
-                                String base64Image = response.body();
-                                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                                imageViewProfilePicture.setImageBitmap(bitmap);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error decoding image: " + e.getMessage());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        Log.e(TAG, "Error loading profile picture: " + t.getMessage());
-                    }
-                });
-    }
-
-    private void updateUserProfile() {
-        String firstName = editTextFirstName.getText().toString().trim();
-        String lastName = editTextLastName.getText().toString().trim();
-        String phoneNumber = editTextPhone.getText().toString().trim();
-
-        UserInfoChangeRequest request = new UserInfoChangeRequest();
-        request.setFirstName(firstName);
-        request.setLastName(lastName);
-        request.setPhoneNumber(phoneNumber);
-
-        progressBar.setVisibility(View.VISIBLE);
-        retrofit.create(com.example.carpool.data.api.UserApi.class).updateUserInfo(request)
-                .enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        progressBar.setVisibility(View.GONE);
-                        if (response.isSuccessful()) {
-                            Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(requireContext(), "Failed to update profile: " + response.code(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void showPictureOptions() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_picture_options, null);
-        
-        Button btnCamera = sheetView.findViewById(R.id.btnCamera);
-        Button btnGallery = sheetView.findViewById(R.id.btnGallery);
-        
-        btnCamera.setOnClickListener(v -> {
-            if (ProfilePictureUtils.hasCameraPermission(requireContext())) {
-                openCamera();
-            } else {
-                ProfilePictureUtils.requestCameraPermission(requireActivity(), REQUEST_CAMERA_PERMISSION);
+                                // If server returns Base64, decode and set
+                                Bitmap bitmap = ProfilePictureUtils.base64ToBitmap(response.body());
+                                if (bitmap != null) {
+                                    imageViewProfilePicture.setImageBitmap(bitmap);
+                                    currentProfileBitmap = bitmap;
+                                    saveProfilePicture(bitmap);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error decoding profile picture", e);
             }
-            bottomSheetDialog.dismiss();
-        });
-        
-        btnGallery.setOnClickListener(v -> {
-            if (ProfilePictureUtils.hasStoragePermission(requireContext())) {
-                openGallery();
-            } else {
-                ProfilePictureUtils.requestStoragePermission(requireActivity(), REQUEST_STORAGE_PERMISSION);
-            }
-            bottomSheetDialog.dismiss();
-        });
-        
-        bottomSheetDialog.setContentView(sheetView);
-        bottomSheetDialog.show();
-    }
-    
-    private void openCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            try {
-                photoFile = ProfilePictureUtils.createTempImageFile(requireContext());
-                photoUri = ProfilePictureUtils.getUriForFile(requireContext(), photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                takePictureLauncher.launch(takePictureIntent);
-            } catch (IOException ex) {
-                Toast.makeText(requireContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void openGallery() {
-        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        galleryLauncher.launch(pickPhotoIntent);
-    }
-    
-    private void processCameraImage() {
-        try {
-            Bitmap bitmap = ProfilePictureUtils.uriToBitmap(requireContext(), photoUri);
-            if (bitmap != null) {
-                Bitmap processedBitmap = ProfilePictureUtils.processBitmap(bitmap);
-                imageViewProfilePicture.setImageBitmap(processedBitmap);
-                uploadProfilePicture(photoUri);
-            }
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void processGalleryImage(Uri imageUri) {
-        try {
-            Bitmap bitmap = ProfilePictureUtils.uriToBitmap(requireContext(), imageUri);
-            if (bitmap != null) {
-                Bitmap processedBitmap = ProfilePictureUtils.processBitmap(bitmap);
-                imageViewProfilePicture.setImageBitmap(processedBitmap);
-                uploadProfilePicture(imageUri);
-            }
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void uploadProfilePicture(Uri imageUri) {
-        try {
-            // Create a temporary file from the URI
-            File file = ProfilePictureUtils.createTempImageFile(requireContext());
-            Bitmap bitmap = ProfilePictureUtils.uriToBitmap(requireContext(), imageUri);
-            FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-            fos.close();
-            
-            // Create request body for file
-            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-            
-            progressBar.setVisibility(View.VISIBLE);
-            retrofit.create(com.example.carpool.data.api.UserApi.class).uploadProfilePicture(body)
-                    .enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            progressBar.setVisibility(View.GONE);
-                            if (response.isSuccessful()) {
-                                Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(requireContext(), "Failed to upload picture: " + response.code(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            progressBar.setVisibility(View.GONE);
-                            Toast.makeText(requireContext(), "Error uploading picture: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error preparing image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openCamera();
-            } else {
-                Toast.makeText(requireContext(), "Camera permission required", Toast.LENGTH_SHORT).show();
-            }
-        } else if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openGallery();
-            } else {
-                Toast.makeText(requireContext(), "Storage permission required", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
+    public void onFailure(Call<String> call, Throwable t) {
+        progressBar.setVisibility(View.GONE);
+        Log.e(TAG, "Error loading profile picture", t);
     }
+});
+}
+
+private void updateUserProfile() {
+    String firstName = editTextFirstName.getText().toString().trim();
+    String lastName = editTextLastName.getText().toString().trim();
+    String phoneNumber = editTextPhone.getText().toString().trim();
+
+    UserInfoChangeRequest request = new UserInfoChangeRequest(firstName, lastName, phoneNumber);
+
+    progressBar.setVisibility(View.VISIBLE);
+    retrofit.create(com.example.carpool.data.api.UserApi.class).updateUserInfo(request)
+            .enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    progressBar.setVisibility(View.GONE);
+                    if (response.isSuccessful()) {
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+}
+
+@Override
+public void onResume() {
+    super.onResume();
+    ((MainActivity) requireActivity()).showBottomNav(true);
+}
 }

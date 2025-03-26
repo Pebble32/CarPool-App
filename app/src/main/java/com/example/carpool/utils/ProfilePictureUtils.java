@@ -3,10 +3,10 @@ package com.example.carpool.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -14,7 +14,6 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -98,6 +97,19 @@ public class ProfilePictureUtils {
     }
 
     /**
+     * Convert URI to Bitmap
+     */
+    public static Bitmap uriToBitmap(Context context, Uri uri) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+            return BitmapFactory.decodeStream(inputStream);
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting URI to bitmap: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Process bitmap (resize and compress)
      */
     public static Bitmap processBitmap(Bitmap originalBitmap) {
@@ -133,15 +145,53 @@ public class ProfilePictureUtils {
     }
 
     /**
-     * Convert URI to Bitmap
+     * Converts a Base64 string to a Bitmap
+     * @param base64String Base64 encoded string
+     * @return Bitmap representation of the image
      */
-    public static Bitmap uriToBitmap(Context context, Uri uri) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            return BitmapFactory.decodeStream(inputStream);
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting URI to bitmap: " + e.getMessage());
-            return null;
+    public static Bitmap base64ToBitmap(String base64String) {
+        if (base64String == null || base64String.isEmpty()) return null;
+        
+        byte[] decodedBytes = Base64.decode(base64String, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    }
+
+    /**
+     * Resize bitmap while maintaining aspect ratio
+     * @param bitmap Original bitmap
+     * @param maxWidth Maximum width
+     * @param maxHeight Maximum height
+     * @return Resized bitmap
+     */
+    public static Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float ratioBitmap = (float) width / (float) height;
+        float ratioMax = (float) maxWidth / (float) maxHeight;
+
+        int finalWidth = maxWidth;
+        int finalHeight = maxHeight;
+        if (ratioMax > ratioBitmap) {
+            finalWidth = (int) (maxHeight * ratioBitmap);
+        } else {
+            finalHeight = (int) (maxWidth / ratioBitmap);
         }
+
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true);
+        return resizedBitmap;
+    }
+
+    /**
+     * Load bitmap from URI
+     * @param context Context
+     * @param uri Image URI
+     * @return Bitmap from URI
+     * @throws IOException
+     */
+    public static Bitmap loadBitmapFromUri(Context context, Uri uri) throws IOException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+        
+        return bitmap;
     }
 }
