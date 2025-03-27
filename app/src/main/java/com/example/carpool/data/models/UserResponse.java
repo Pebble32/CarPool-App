@@ -1,6 +1,6 @@
 package com.example.carpool.data.models;
 
-public class GetUserRequest {
+public class UserResponse {
 
     private String email;
     private String password;
@@ -9,7 +9,7 @@ public class GetUserRequest {
     private String phoneNumber;
 
 
-    public GetUserRequest(String email, String password, String firstName, String phone, String lastName) {
+    public UserResponse(String email, String password, String firstName, String phone, String lastName) {
         this.email = email;
         this.password = password;
         this.phoneNumber = phone;
@@ -33,7 +33,7 @@ public class GetUserRequest {
         return lastName;
     }
 
-    public String getPhone() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 

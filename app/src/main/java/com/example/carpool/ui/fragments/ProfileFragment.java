@@ -1,5 +1,7 @@
 package com.example.carpool.ui.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,7 +20,9 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.api.UserApi;
+import com.example.carpool.data.models.UserResponse;
 import com.example.carpool.ui.activities.MainActivity;
+import com.example.carpool.ui.utils.ProfilePictureUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +31,10 @@ import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 import android.graphics.Bitmap;
 import android.util.Base64;
 
@@ -38,6 +46,12 @@ public class ProfileFragment extends Fragment {
     private Button buttonNotifications;
     private AuthApi authApi;
     private UserApi userApi;
+    private Retrofit retrofit;
+    private Bitmap currentProfileBitmap;
+
+    private static final String TAG = "ProfileManagementFragment";
+    private static final String PREFS_NAME = "ProfilePrefs";
+    private static final String PREF_PROFILE_PICTURE = "ProfilePicture";
 
     @Nullable
     @Override
@@ -51,12 +65,15 @@ public class ProfileFragment extends Fragment {
         textViewUserEmail = view.findViewById(R.id.textViewUserEmail);
         buttonPersonalInformation = view.findViewById(R.id.buttonPersonalInformation);
         buttonNotifications = view.findViewById(R.id.buttonNotifications);
+
         authApi = RetrofitClient.getInstance().create(AuthApi.class);
         userApi = RetrofitClient.getInstance().create(UserApi.class);
+        
+        retrofit = RetrofitClient.getInstance();
 
         // Set the user's profile picture, name, and email
-        //getUserInformation();
-        //getProfilePicture();
+        getUserInformation();
+        getProfilePicture();
 
         buttonPersonalInformation.setOnClickListener(v -> {
             // Switch to AccountSettingsFragment
@@ -82,64 +99,66 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getUserInformation() {
-        // Fetch user information from the server and set the profile picture, name, and email
-        authApi.getUser().enqueue(new retrofit2.Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String responseBody = response.body().string();
-                        // Assuming the response body is a JSON string
-                        JSONObject jsonObject = new JSONObject(responseBody);
-                        String email = jsonObject.getString("email");
-                        String firstName = jsonObject.getString("firstName");
-                        String lastName = jsonObject.getString("lastName");
-                        String fullName = firstName + " " + lastName;
+        retrofit.create(com.example.carpool.data.api.UserApi.class).getUserInfo()
+                .enqueue(new Callback<UserResponse>() {
+                    @Override
+                    public void onResponse(Call<com.example.carpool.data.models.UserResponse> call,
+                                           Response<UserResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            String firstName = response.body().getFirstName();
+                            String lastName = response.body().getLastName();
+                            String fullName = firstName + " " + lastName;
+                            textViewUserName.setText(fullName);
+                            textViewUserEmail.setText(response.body().getEmail());
 
-                        // Update the UI with the retrieved user information
-                        textViewUserEmail.setText(email);
-                        textViewUserName.setText(fullName);
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getContext(), "Failed to parse user information", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    Toast.makeText(getContext(), "Failed to get user information", Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Failed to get user information", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<com.example.carpool.data.models.UserResponse> call, Throwable t) {
+                        Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
 
     private void getProfilePicture(){
         // Fetch user profile picture from the server and set the profile picture
-        userApi.getProfilePicture().enqueue(new retrofit2.Callback<>() {
+        retrofit.create(UserApi.class).getProfilePicture().enqueue(new Callback<String>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
-                        String profilePictureString = response.body().string();
-                        byte[] decodedString = Base64.decode(profilePictureString, Base64.DEFAULT);
-                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        imageViewProfilePicture.setImageBitmap(decodedByte); // veit ekki hvort þetta virki
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getContext(), "Failed to decode profile picture", Toast.LENGTH_SHORT).show();
+                        // If server returns Base64, decode and set
+                        Bitmap bitmap = ProfilePictureUtils.base64ToBitmap(response.body());
+                        if (bitmap != null) {
+                            imageViewProfilePicture.setImageBitmap(bitmap);
+                            currentProfileBitmap = bitmap;
+                            saveProfilePicture(bitmap);
+                        }
+                    } catch (Exception e) {
+                        // Log error if needed
                     }
-                } else {
-                    Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Failed to get profile picture", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<String> call, Throwable t) {
+                Toast.makeText(requireContext(), "Error loading profile picture: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Log error if needed
             }
         });
+
+    }
+
+    private void saveProfilePicture(Bitmap bitmap) {
+        if (bitmap != null) {
+            String base64Picture = ProfilePictureUtils.bitmapToBase64(bitmap);
+            SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString(PREF_PROFILE_PICTURE, base64Picture).apply();
+        }
+
     }
 }
