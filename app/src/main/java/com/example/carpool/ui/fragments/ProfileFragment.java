@@ -18,6 +18,7 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.api.UserApi;
+import com.example.carpool.ui.activities.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,8 +33,7 @@ import android.util.Base64;
 public class ProfileFragment extends Fragment {
 
     private ImageView imageViewProfilePicture;
-    private TextView textViewUserName;
-    private TextView textViewUserEmail;
+    private TextView textViewUserName, textViewUserEmail;
     private Button buttonPersonalInformation;
     private Button buttonNotifications;
     private AuthApi authApi;
@@ -55,8 +55,8 @@ public class ProfileFragment extends Fragment {
         userApi = RetrofitClient.getInstance().create(UserApi.class);
 
         // Set the user's profile picture, name, and email
-        getUserInformation();
-        getProfilePicture();
+        //getUserInformation();
+        //getProfilePicture();
 
         buttonPersonalInformation.setOnClickListener(v -> {
             // Switch to AccountSettingsFragment
@@ -75,6 +75,12 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) requireActivity()).showBottomNav(true);
+    }
+
     private void getUserInformation() {
         // Fetch user information from the server and set the profile picture, name, and email
         authApi.getUser().enqueue(new retrofit2.Callback<>() {
@@ -87,10 +93,12 @@ public class ProfileFragment extends Fragment {
                         JSONObject jsonObject = new JSONObject(responseBody);
                         String email = jsonObject.getString("email");
                         String firstName = jsonObject.getString("firstName");
+                        String lastName = jsonObject.getString("lastName");
+                        String fullName = firstName + " " + lastName;
 
                         // Update the UI with the retrieved user information
                         textViewUserEmail.setText(email);
-                        textViewUserName.setText(firstName);
+                        textViewUserName.setText(fullName);
                     } catch (IOException | JSONException e) {
                         e.printStackTrace();
                         Toast.makeText(getContext(), "Failed to parse user information", Toast.LENGTH_SHORT).show();
