@@ -14,10 +14,13 @@ public class UpdateUserRequest {
     public String getFirstname() {
         return firstname;
     }
+
     public String getLastname() {
         return lastname;
     }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
+
 }

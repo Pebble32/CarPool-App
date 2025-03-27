@@ -10,4 +10,13 @@ public class PasswordChangeRequest {
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
+
+    // getters
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
 }
