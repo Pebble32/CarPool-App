@@ -40,7 +40,7 @@ import retrofit2.Retrofit;
 public class AccountSettingsFragment extends Fragment {
 
     private ImageView imageViewProfilePicture;
-    private EditText editTextEmail, editTextPassword, editTextFirstName, editTextLastName, editTextPhone;
+    private EditText  editTextPassword, editTextFirstName, editTextLastName, editTextPhone;
     private TextView textView, textView2, textView3, textView4, textView5, textView6, textView7;
     private Button buttonSaveChanges;
     private Button buttonUploadProfilePicture;
@@ -53,7 +53,6 @@ public class AccountSettingsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account_settings, container, false);
         imageViewProfilePicture = view.findViewById(R.id.imageViewProfilePicture);
-        editTextEmail = view.findViewById(R.id.editTextTextEmailAddress);
         editTextPassword = view.findViewById(R.id.editTextPassword);
         editTextFirstName = view.findViewById(R.id.editTextFirstname);
         editTextLastName = view.findViewById(R.id.editTextLastname);
@@ -62,7 +61,6 @@ public class AccountSettingsFragment extends Fragment {
         textView2 = view.findViewById(R.id.textView2);
         textView3 = view.findViewById(R.id.textView3);
         textView4 = view.findViewById(R.id.textView4);
-        textView5 = view.findViewById(R.id.textView5);
         textView6 = view.findViewById(R.id.textView6);
         textView7 = view.findViewById(R.id.textView7);
         buttonSaveChanges = view.findViewById(R.id.buttonSaveChanges);
@@ -99,7 +97,6 @@ public class AccountSettingsFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             editTextFirstName.setText(response.body().getFirstName());
                             editTextLastName.setText(response.body().getLastName());
-                            editTextEmail.setText(response.body().getEmail());
                             editTextPhone.setText(response.body().getPhoneNumber());
 
                         } else {
