@@ -22,6 +22,7 @@ import com.example.carpool.R;
 import com.example.carpool.data.api.AuthApi;
 import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.api.UserApi;
+import com.example.carpool.data.models.PasswordChangeRequest;
 import com.example.carpool.data.models.UpdateUserRequest;
 import com.example.carpool.data.models.UserResponse;
 import com.example.carpool.ui.activities.MainActivity;
@@ -40,7 +41,7 @@ import retrofit2.Retrofit;
 public class AccountSettingsFragment extends Fragment {
 
     private ImageView imageViewProfilePicture;
-    private EditText  editTextPassword, editTextFirstName, editTextLastName, editTextPhone;
+    private EditText  editTextFirstName, editTextLastName, editTextPhone, editTextOldPassword, editTextNewPassword;
     private TextView textView, textView2, textView3, textView4, textView5, textView6, textView7;
     private Button buttonSaveChanges;
     private Button buttonUploadProfilePicture;
@@ -53,7 +54,8 @@ public class AccountSettingsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account_settings, container, false);
         imageViewProfilePicture = view.findViewById(R.id.imageViewProfilePicture);
-        editTextPassword = view.findViewById(R.id.editTextPassword);
+        editTextOldPassword = view.findViewById(R.id.editTextOldPassword);
+        editTextNewPassword = view.findViewById(R.id.editTextNewPassword);
         editTextFirstName = view.findViewById(R.id.editTextFirstname);
         editTextLastName = view.findViewById(R.id.editTextLastname);
         editTextPhone = view.findViewById(R.id.editTextPhone);
@@ -119,6 +121,8 @@ public class AccountSettingsFragment extends Fragment {
         String firstName = editTextFirstName.getText().toString().trim();
         String lastName = editTextLastName.getText().toString().trim();
         String phone = editTextPhone.getText().toString().trim();
+        String oldPassword = editTextOldPassword.getText().toString().trim();
+        String newPassword = editTextNewPassword.getText().toString().trim();
 
         // Create a UpdateUserRequest object with the collected data
         UpdateUserRequest request = new UpdateUserRequest(firstName, lastName, phone);
@@ -140,6 +144,32 @@ public class AccountSettingsFragment extends Fragment {
                         Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        // If the user has entered a new password, update the password
+        if (!newPassword.isEmpty() && !oldPassword.isEmpty()) {
+            PasswordChangeRequest passwordRequest = new PasswordChangeRequest(oldPassword, newPassword);
+            retrofit.create(com.example.carpool.data.api.UserApi.class).updatePassword(passwordRequest)
+                    .enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(requireContext(), "Password updated successfully", Toast.LENGTH_SHORT).show();
+                            } else {
+                                try {
+                                    JSONObject error = new JSONObject(response.errorBody().string());
+                                    Toast.makeText(requireContext(), error.getString("message"), Toast.LENGTH_SHORT).show();
+                                } catch (IOException | JSONException e) {
+                                    Toast.makeText(requireContext(), "Failed to update password", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
 
     }
 

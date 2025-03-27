@@ -36,5 +36,5 @@ public interface UserApi {
     Call<UserResponse> getUserInfo();
 
     @POST("users/update/password")
-    Call<ResponseBody> updatePassword(@Body com.example.carpool.data.models.UpdateUserRequest request);
+    Call<ResponseBody> updatePassword(@Body com.example.carpool.data.models.PasswordChangeRequest request);
 }

@@ -71,7 +71,7 @@
                     android:layout_height="66dp"
                     android:layout_marginTop="52dp"
                     android:padding="16dp"
-                    android:text="Personal Information"
+                    android:text="Change Profile"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textViewUserName" />

@@ -78,15 +78,15 @@
                     android:layout_width="72dp"
                     android:layout_height="24dp"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="36dp"
+                    android:layout_marginTop="20dp"
                     android:text="First name"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/buttonChangeProfilePicture" />
 
                 <EditText
                     android:id="@+id/editTextFirstname"
-                    android:layout_width="357dp"
-                    android:layout_height="56dp"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
                     android:layout_marginTop="8dp"
                     android:hint="First name"
                     android:inputType="textPersonName"
@@ -101,15 +101,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="20dp"
                     android:text="Last name"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/editTextFirstname" />
 
                 <EditText
                     android:id="@+id/editTextLastname"
-                    android:layout_width="350dp"
-                    android:layout_height="59dp"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
                     android:layout_marginTop="4dp"
                     android:hint="Last name"
                     android:inputType="textPersonName"
@@ -124,7 +124,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="20dp"
                     android:text="Phone number"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/editTextLastname" />
@@ -147,34 +147,54 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="28dp"
-                    android:text="Password"
+                    android:layout_marginTop="20dp"
+                    android:text="Old Password"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
 
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="New Password"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editTextOldPassword" />
+
                 <EditText
-                    android:id="@+id/editTextPassword"
+                    android:id="@+id/editTextOldPassword"
                     android:layout_width="358dp"
                     android:layout_height="65dp"
                     android:layout_marginTop="4dp"
-                    android:hint="New Password"
+                    android:hint="Old Password"
                     android:inputType="textPassword"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.2"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textView7" />
 
+                <EditText
+                    android:id="@+id/editTextNewPassword"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:hint="New Password"
+                    android:inputType="textPassword"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.4"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:layout_editor_absoluteY="616dp" />
+
                 <Button
                     android:id="@+id/buttonSaveChanges"
                     android:layout_width="161dp"
                     android:layout_height="61dp"
-                    android:layout_marginTop="60dp"
+                    android:layout_marginTop="28dp"
                     android:padding="16dp"
                     android:text="Save changes"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.47"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
+                    app:layout_constraintTop_toBottomOf="@+id/editTextNewPassword" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
