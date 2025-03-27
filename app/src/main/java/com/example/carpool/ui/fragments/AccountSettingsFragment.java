@@ -84,7 +84,7 @@ public class AccountSettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) requireActivity()).showBottomNav(false);
+        ((MainActivity) requireActivity()).showBottomNav(true);
     }
 
     /**
@@ -99,6 +99,7 @@ public class AccountSettingsFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             editTextFirstName.setText(response.body().getFirstName());
                             editTextLastName.setText(response.body().getLastName());
+                            editTextEmail.setText(response.body().getEmail());
                             editTextPhone.setText(response.body().getPhoneNumber());
 
                         } else {
@@ -118,14 +119,12 @@ public class AccountSettingsFragment extends Fragment {
      */
     private void saveChanges() {
         // collect user input from the EditText fields (they can be empty)
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
         String firstName = editTextFirstName.getText().toString().trim();
         String lastName = editTextLastName.getText().toString().trim();
         String phone = editTextPhone.getText().toString().trim();
 
         // Create a UpdateUserRequest object with the collected data
-        UpdateUserRequest request = new UpdateUserRequest(email, password, firstName, lastName, phone);
+        UpdateUserRequest request = new UpdateUserRequest(firstName, lastName, phone);
 
         // Make an API call to update the user's information
         retrofit.create(com.example.carpool.data.api.UserApi.class).updateUser(request)
