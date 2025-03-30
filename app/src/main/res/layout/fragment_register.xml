@@ -66,23 +66,6 @@
             android:inputType="textUri"
             android:layout_marginBottom="24dp" />
 
-        <ImageView
-            android:id="@+id/imageViewProfilePicture"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            android:contentDescription="Profile Picture" />
-
-        <Button
-            android:id="@+id/buttonSelectPicture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Profile Picture"
-            android:layout_marginTop="12dp" />
-
         <Button
             android:id="@+id/buttonRegister"
             android:layout_width="match_parent"

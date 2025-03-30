@@ -1,5 +1,4 @@
 package com.example.carpool.ui.activities;
-import com.example.carpool.ui.fragments.ProfileManagementFragment;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (navFragmentId == R.id.nav_create_ride) {
             selectedFragment = new CreateRideFragment();
         } else if (navFragmentId == R.id.nav_profile) {
-            selectedFragment = new ProfileManagementFragment();
+            selectedFragment = null;
         }
 
         if (selectedFragment != null) {
