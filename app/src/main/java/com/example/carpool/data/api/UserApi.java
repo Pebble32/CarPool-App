@@ -31,12 +31,12 @@ public interface UserApi {
     @PUT("users/profile-picture")
     Call<ResponseBody> changeProfilePicture(@Part MultipartBody.Part file);
 
-    @POST("users/update")
+    @PUT("users/update")
     Call<ResponseBody> updateUser(@Body UpdateUserRequest request);
 
     @GET("auth/get-user")
     Call<UserResponse> getUserInfo();
 
-    @POST("users/update/password")
+    @PUT("users/update/password")
     Call<ResponseBody> updatePassword(@Body PasswordChangeRequest request);
 }
