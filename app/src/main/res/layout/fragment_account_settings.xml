@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:minHeight="800dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="789dp">
+
+                <ImageView
+                    android:id="@+id/imageViewProfilePicture"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="28dp"
+                    android:contentDescription="Profile Picture"
+                    android:src="@drawable/profile_placeholder"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.06"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="161dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:text="Update your picture"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/imageViewProfilePicture"
+                    app:layout_constraintTop_toTopOf="@id/imageViewProfilePicture" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Upload a photo under 2MB"
+                    app:layout_constraintStart_toEndOf="@id/imageViewProfilePicture"
+                    app:layout_constraintTop_toBottomOf="@id/textView" />
+
+                <Button
+                    android:id="@+id/buttonChangeProfilePicture"
+                    android:layout_width="94dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="56dp"
+                    android:text="Upload"
+                    app:layout_constraintStart_toEndOf="@id/imageViewProfilePicture"
+                    app:layout_constraintTop_toTopOf="@id/imageViewProfilePicture" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="72dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="First name"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/buttonChangeProfilePicture" />
+
+                <EditText
+                    android:id="@+id/editTextFirstname"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="First name"
+                    android:inputType="textPersonName"
+                    android:padding="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.312"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView3" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Last name"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/editTextFirstname" />
+
+                <EditText
+                    android:id="@+id/editTextLastname"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:layout_marginTop="4dp"
+                    android:hint="Last name"
+                    android:inputType="textPersonName"
+                    android:padding="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.307"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView4" />
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Phone number"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editTextLastname" />
+
+                <EditText
+                    android:id="@+id/editTextPhone"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:layout_marginTop="4dp"
+                    android:ems="10"
+                    android:hint="Phone number"
+                    android:inputType="phone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.34"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView6" />
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Old Password"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="20dp"
+                    android:text="New Password"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editTextOldPassword" />
+
+                <EditText
+                    android:id="@+id/editTextOldPassword"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:layout_marginTop="4dp"
+                    android:hint="Old Password"
+                    android:inputType="textPassword"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView7" />
+
+                <EditText
+                    android:id="@+id/editTextNewPassword"
+                    android:layout_width="358dp"
+                    android:layout_height="65dp"
+                    android:layout_marginTop="4dp"
+                    android:hint="New Password"
+                    android:inputType="textPassword"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.4"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+                <Button
+                    android:id="@+id/buttonSaveChanges"
+                    android:layout_width="161dp"
+                    android:layout_height="61dp"
+                    android:layout_marginTop="28dp"
+                    android:padding="16dp"
+                    android:text="Save changes"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editTextNewPassword" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
