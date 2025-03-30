@@ -145,7 +145,7 @@ public class AccountSettingsFragment extends Fragment {
 
         String oldPassword = editTextOldPassword.getText().toString().trim();
         String newPassword = editTextNewPassword.getText().toString().trim();
-        /*
+
         // If the user has entered a new password, update the password
         if (!newPassword.isEmpty() && !oldPassword.isEmpty()) {
             PasswordChangeRequest passwordRequest = new PasswordChangeRequest(oldPassword, newPassword);
@@ -171,8 +171,6 @@ public class AccountSettingsFragment extends Fragment {
                         }
                     });
         }
-
-         */
 
     }
 
