@@ -23,13 +23,10 @@ public interface UserApi {
     @GET("users/profile-picture")
     Call<String> getProfilePicture();
 
-    @Multipart
-    @POST("users/profile-picture")
-    Call<ResponseBody> updateProfilePicture(@Part MultipartBody.Part file);
 
     @Multipart
     @PUT("users/profile-picture")
-    Call<ResponseBody> changeProfilePicture(@Part MultipartBody.Part file);
+    Call<ResponseBody> uploadProfilePicture(@Part MultipartBody.Part file);
 
     @PUT("users/update")
     Call<ResponseBody> updateUser(@Body UpdateUserRequest request);
