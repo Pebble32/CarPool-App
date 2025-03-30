@@ -1,5 +1,7 @@
 package com.example.carpool.data.api;
 
+import com.example.carpool.data.models.PasswordChangeRequest;
+import com.example.carpool.data.models.UpdateUserRequest;
 import com.example.carpool.data.models.UserResponse;
 
 import okhttp3.MultipartBody;
@@ -30,11 +32,11 @@ public interface UserApi {
     Call<ResponseBody> changeProfilePicture(@Part MultipartBody.Part file);
 
     @POST("users/update")
-    Call<ResponseBody> updateUser(@Body com.example.carpool.data.models.UpdateUserRequest request);
+    Call<ResponseBody> updateUser(@Body UpdateUserRequest request);
 
     @GET("auth/get-user")
     Call<UserResponse> getUserInfo();
 
     @POST("users/update/password")
-    Call<ResponseBody> updatePassword(@Body com.example.carpool.data.models.PasswordChangeRequest request);
+    Call<ResponseBody> updatePassword(@Body PasswordChangeRequest request);
 }
