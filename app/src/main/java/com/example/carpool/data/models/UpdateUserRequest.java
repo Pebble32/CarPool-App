@@ -1,28 +1,40 @@
 package com.example.carpool.data.models;
 
 public class UpdateUserRequest {
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     private String phoneNumber;
 
     public UpdateUserRequest() {}
 
-    public UpdateUserRequest(String firstname, String lastname, String phoneNumber) {
-        this.firstname = firstname;
-        this.lastname = lastname;
+    public UpdateUserRequest(String firstName, String lastName, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.phoneNumber = phoneNumber;
     }
 
-    public String getFirstname() {
-        return firstname;
+    // Getters and Setters
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getLastname() {
-        return lastname;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }
