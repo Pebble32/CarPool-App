@@ -117,21 +117,18 @@ public class AccountSettingsFragment extends Fragment {
      * Method to save changes to the user's information
      */
     private void saveChanges() {
-        // collect user input from the EditText fields (they can be empty)
         String firstName = editTextFirstName.getText().toString().trim();
         String lastName = editTextLastName.getText().toString().trim();
-        String phone = editTextPhone.getText().toString().trim();
-        String oldPassword = editTextOldPassword.getText().toString().trim();
-        String newPassword = editTextNewPassword.getText().toString().trim();
+        String phoneNumber = editTextPhone.getText().toString().trim();
 
-        // Create a UpdateUserRequest object with the collected data
-        UpdateUserRequest request = new UpdateUserRequest(firstName, lastName, phone);
+        UpdateUserRequest request = new UpdateUserRequest(firstName, lastName, phoneNumber);
 
-        // Make an API call to update the user's information
+        //progressBar.setVisibility(View.VISIBLE);
         retrofit.create(com.example.carpool.data.api.UserApi.class).updateUser(request)
                 .enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        //progressBar.setVisibility(View.GONE);
                         if (response.isSuccessful()) {
                             Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
                         } else {
@@ -141,10 +138,14 @@ public class AccountSettingsFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        //progressBar.setVisibility(View.GONE);
                         Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
+        String oldPassword = editTextOldPassword.getText().toString().trim();
+        String newPassword = editTextNewPassword.getText().toString().trim();
+        /*
         // If the user has entered a new password, update the password
         if (!newPassword.isEmpty() && !oldPassword.isEmpty()) {
             PasswordChangeRequest passwordRequest = new PasswordChangeRequest(oldPassword, newPassword);
@@ -170,6 +171,8 @@ public class AccountSettingsFragment extends Fragment {
                         }
                     });
         }
+
+         */
 
     }
 
