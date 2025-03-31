@@ -4,11 +4,15 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -78,12 +82,14 @@ public class RetrofitClient {
                 // Create Gson with our DateTypeAdapter
                 Gson gson = new GsonBuilder()
                         .registerTypeAdapter(LocalDateTime.class, new DateTypeAdapter())
+                        .setLenient()
                         .create();
 
                 // Build Retrofit instance
                 retrofit = new Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .client(client)
+                        .addConverterFactory(new StringConverterFactory())
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build();
 
@@ -94,5 +100,24 @@ public class RetrofitClient {
             }
         }
         return retrofit;
+    }
+    
+    /**
+     * Custom converter factory to handle String responses properly
+     */
+    static class StringConverterFactory extends Converter.Factory {
+        @Override
+        public Converter<ResponseBody, ?> responseBodyConverter(
+                Type type, Annotation[] annotations, Retrofit retrofit) {
+            if (type == String.class) {
+                return new Converter<ResponseBody, String>() {
+                    @Override
+                    public String convert(ResponseBody value) throws IOException {
+                        return value.string();
+                    }
+                };
+            }
+            return null; // Let Gson handle other types
+        }
     }
 }

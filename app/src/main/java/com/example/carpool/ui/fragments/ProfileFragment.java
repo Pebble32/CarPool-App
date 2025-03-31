@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,18 +140,22 @@ public class ProfileFragment extends Fragment {
                             saveProfilePicture(bitmap);
                         }
                     } catch (Exception e) {
-                        // Log error if needed
+                        // Log error and show toast
+                        Log.e(TAG, "Error processing profile picture: " + e.getMessage(), e);
+                        Toast.makeText(requireContext(), "Error processing profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    // Handle unsuccessful response
+                    Toast.makeText(requireContext(), "Failed to load profile picture. Server response: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
+                Log.e(TAG, "Failed to load profile picture", t);
                 Toast.makeText(requireContext(), "Error loading profile picture: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                // Log error if needed
             }
         });
-
     }
 
     private void saveProfilePicture(Bitmap bitmap) {
