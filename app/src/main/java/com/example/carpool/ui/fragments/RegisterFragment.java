@@ -79,7 +79,15 @@ public class RegisterFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    processCameraImage();
+                    Bundle extras = result.getData().getExtras();
+                    Bitmap bitmap = (Bitmap) extras.get("data");
+                    if (bitmap != null) {
+                        Bitmap processedBitmap = ProfilePictureUtils.processBitmap(bitmap);
+                        imageViewProfilePicture.setImageBitmap(processedBitmap);
+                        base64ProfilePicture = ProfilePictureUtils.bitmapToBase64(processedBitmap);
+                        // Make the image view visible
+                        imageViewProfilePicture.setVisibility(View.VISIBLE);
+                    }
                 }
             });
 
@@ -158,38 +166,12 @@ public class RegisterFragment extends Fragment {
 
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            try {
-                photoFile = ProfilePictureUtils.createTempImageFile(requireContext());
-                photoUri = ProfilePictureUtils.getUriForFile(requireContext(), photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                takePictureLauncher.launch(takePictureIntent);
-            } catch (IOException ex) {
-                Toast.makeText(requireContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show();
-        }
+        takePictureLauncher.launch(takePictureIntent);
     }
 
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         galleryLauncher.launch(pickPhotoIntent);
-    }
-
-    private void processCameraImage() {
-        try {
-            Bitmap bitmap = ProfilePictureUtils.uriToBitmap(requireContext(), photoUri);
-            if (bitmap != null) {
-                Bitmap processedBitmap = ProfilePictureUtils.processBitmap(bitmap);
-                imageViewProfilePicture.setImageBitmap(processedBitmap);
-                base64ProfilePicture = ProfilePictureUtils.bitmapToBase64(processedBitmap);
-                // Make the image view visible
-                imageViewProfilePicture.setVisibility(View.VISIBLE);
-            }
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void processGalleryImage(Uri imageUri) {
