@@ -12,7 +12,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,20 +39,17 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-
-    // Retrofit and OkHttp dependencies for networking
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.swiperefreshlayout)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.android.gms:play-services-base:18.1.0")
-    implementation ("com.google.android.libraries.places:places:3.1.0")
-
-
+    implementation(libs.logging.interceptor)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.play.services.base)
+    implementation(libs.places)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
