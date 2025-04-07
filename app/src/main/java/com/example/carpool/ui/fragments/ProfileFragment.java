@@ -144,9 +144,6 @@ public class ProfileFragment extends Fragment {
                         Log.e(TAG, "Error processing profile picture: " + e.getMessage(), e);
                         Toast.makeText(requireContext(), "Error processing profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    // Handle unsuccessful response
-                    Toast.makeText(requireContext(), "Failed to load profile picture. Server response: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

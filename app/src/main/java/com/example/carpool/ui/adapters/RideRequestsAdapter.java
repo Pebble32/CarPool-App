@@ -66,7 +66,7 @@ public class RideRequestsAdapter extends RecyclerView.Adapter<RideRequestsAdapte
 
         boolean isPending = "PENDING".equalsIgnoreCase(request.getRequestStatus());
         holder.buttonLayout.setVisibility(isPending ? View.VISIBLE : View.GONE);
-        
+
         holder.acceptButton.setOnClickListener(v -> listener.onAcceptClick(request));
         holder.declineButton.setOnClickListener(v -> listener.onDeclineClick(request));
     }

@@ -250,7 +250,7 @@ public class AccountSettingsFragment extends Fragment {
      * Method to load the user's saved profile picture
      */
     private void loadSavedProfilePicture() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        /*SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String savedProfilePicture = prefs.getString(PREF_PROFILE_PICTURE, null);
 
         if (savedProfilePicture != null) {
@@ -263,7 +263,35 @@ public class AccountSettingsFragment extends Fragment {
             } catch (Exception e) {
                 Log.e(TAG, "Error loading saved profile picture", e);
             }
-        }
+        }*/
+
+        // Fetch user profile picture from the server and set the profile picture
+        retrofit.create(UserApi.class).getProfilePicture().enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // If server returns Base64, decode and set
+                        Bitmap bitmap = ProfilePictureUtils.base64ToBitmap(response.body());
+                        if (bitmap != null) {
+                            imageViewProfilePicture.setImageBitmap(bitmap);
+                            currentProfileBitmap = bitmap;
+                            saveProfilePicture(bitmap);
+                        }
+                    } catch (Exception e) {
+                        // Log error and show toast
+                        Log.e(TAG, "Error processing profile picture: " + e.getMessage(), e);
+                        Toast.makeText(requireContext(), "Error processing profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(TAG, "Failed to load profile picture", t);
+                Toast.makeText(requireContext(), "Error loading profile picture: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void saveProfilePicture(Bitmap bitmap) {

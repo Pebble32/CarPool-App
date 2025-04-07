@@ -91,7 +91,7 @@ public class MapRouteFragment extends Fragment implements OnMapReadyCallback {
 
         // Set up the toolbar
         MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
         // Hide bottom navigation if present
         if (getActivity() instanceof MainActivity) {
