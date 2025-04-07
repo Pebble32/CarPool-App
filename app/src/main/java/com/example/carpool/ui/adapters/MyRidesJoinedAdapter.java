@@ -128,9 +128,9 @@ public class MyRidesJoinedAdapter extends RecyclerView.Adapter<MyRidesJoinedAdap
                 Log.d(TAG, "No ride offer details for request ID: " + request.getId());
                 holder.textViewStartLocation.setText("Request #" + request.getId());
                 holder.textViewEndLocation.setText("Ride offer details unavailable");
-                holder.textViewDriverEmail.setVisibility(View.GONE);
-                holder.textViewRideStatus.setVisibility(View.GONE);
-                holder.textViewDepartureTime.setVisibility(View.GONE);
+                holder.textViewDriverEmail.setText("");
+                holder.textViewRideStatus.setText("");
+                holder.textViewDepartureTime.setText("");
 
                 // Hide route button if no ride offer details
                 if (holder.buttonViewRoute != null) {
