@@ -66,7 +66,7 @@ public class RegisterFragment extends Fragment {
     private static final int REQUEST_STORAGE_PERMISSION = 101;
 
     private EditText editTextEmail, editTextPassword, editTextFirstName, editTextLastName, editTextPhone, editTextProfilePicture;
-    private Button buttonRegister, buttonSelectPicture;
+    private Button buttonRegister, buttonSelectPicture, buttonGoToLogin;
     private ImageView imageViewProfilePicture;
     private AuthApi authApi;
 
@@ -114,6 +114,7 @@ public class RegisterFragment extends Fragment {
         editTextPhone = view.findViewById(R.id.editTextPhone);
         editTextProfilePicture = view.findViewById(R.id.editTextProfilePicture);
         buttonRegister = view.findViewById(R.id.buttonRegister);
+        buttonGoToLogin = view.findViewById(R.id.buttonGoToLogin);
 
         // New components for profile picture
         buttonSelectPicture = view.findViewById(R.id.buttonSelectPicture);
@@ -122,6 +123,14 @@ public class RegisterFragment extends Fragment {
         authApi = RetrofitClient.getInstance().create(AuthApi.class);
 
         buttonRegister.setOnClickListener(v -> registerUser());
+        buttonGoToLogin.setOnClickListener(v -> {
+            // Navigate to the RegisterFragment if needed
+            LoginFragment loginFragment = new LoginFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, loginFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
 
         // Set up profile picture button
         buttonSelectPicture.setOnClickListener(v -> showPictureOptions());

@@ -157,9 +157,13 @@ public class AccountSettingsFragment extends Fragment {
 
 
     @Override
-    public void onResume() {
+    public void onResume(){
         super.onResume();
-        ((MainActivity) requireActivity()).showBottomNav(true);
+        if (getActivity() instanceof MainActivity){
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.showBottomNav(true);
+            mainActivity.uncheckBottomNav();
+        }
     }
 
     /**
