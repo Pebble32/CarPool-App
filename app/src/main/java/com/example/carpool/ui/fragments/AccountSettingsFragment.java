@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -42,7 +43,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -57,6 +61,8 @@ public class AccountSettingsFragment extends Fragment {
     private static final String TAG = "ProfileManagementFragment";
     private static final String PREFS_NAME = "ProfilePrefs";
     private static final String PREF_PROFILE_PICTURE = "ProfilePicture";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private static final int REQUEST_STORAGE_PERMISSION = 101;
 
     private ImageView imageViewProfilePicture;
     private EditText  editTextFirstName, editTextLastName, editTextPhone, editTextOldPassword, editTextNewPassword;
@@ -66,15 +72,35 @@ public class AccountSettingsFragment extends Fragment {
 
     private Bitmap currentProfileBitmap;
     private Retrofit retrofit;
+    private Uri photoUri;
 
     private ActivityResultLauncher<Intent> takePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    Bundle extras = result.getData().getExtras();
-                    currentProfileBitmap = (Bitmap) extras.get("data");
-                    imageViewProfilePicture.setImageBitmap(currentProfileBitmap);
-                    uploadProfilePicture(currentProfileBitmap);
+                    try {
+                        if (photoUri != null) {
+                            // Load the full image from the file
+                            currentProfileBitmap = ProfilePictureUtils.loadBitmapFromUri(requireContext(), photoUri);
+                            // Process the bitmap (resize if needed)
+                            currentProfileBitmap = ProfilePictureUtils.processBitmap(currentProfileBitmap);
+                            // Set the image
+                            imageViewProfilePicture.setImageBitmap(currentProfileBitmap);
+                            // Upload the processed image
+                            uploadProfilePicture(currentProfileBitmap);
+                        } else {
+                            // Fallback to thumbnail if URI is null
+                            Bundle extras = result.getData().getExtras();
+                            if (extras != null && extras.containsKey("data")) {
+                                currentProfileBitmap = (Bitmap) extras.get("data");
+                                imageViewProfilePicture.setImageBitmap(currentProfileBitmap);
+                                uploadProfilePicture(currentProfileBitmap);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error processing camera image", e);
+                        Toast.makeText(getContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -302,19 +328,69 @@ public class AccountSettingsFragment extends Fragment {
         Button btnGallery = sheetView.findViewById(R.id.btnGallery);
 
         btnCamera.setOnClickListener(v -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            takePictureLauncher.launch(takePictureIntent);
+            if (ProfilePictureUtils.hasCameraPermission(requireContext())) {
+                openCamera();
+            } else {
+                ProfilePictureUtils.requestCameraPermission(requireActivity(), REQUEST_CAMERA_PERMISSION);
+            }
             bottomSheetDialog.dismiss();
         });
 
         btnGallery.setOnClickListener(v -> {
-            Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            galleryLauncher.launch(pickPhotoIntent);
+            if (ProfilePictureUtils.hasStoragePermission(requireContext())) {
+                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                galleryLauncher.launch(pickPhotoIntent);
+            } else {
+                ProfilePictureUtils.requestStoragePermission(requireActivity(), REQUEST_STORAGE_PERMISSION);
+            }
             bottomSheetDialog.dismiss();
         });
 
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
+    }
+
+    private void openCamera() {
+        try {
+            // Create a file to save the image
+            File photoFile = ProfilePictureUtils.createTempImageFile(requireContext());
+            
+            // Get a content URI for the file using FileProvider
+            photoUri = ProfilePictureUtils.getUriForFile(requireContext(), photoFile);
+            
+            // Create camera intent
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            
+            // Grant write permission to the camera app
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            
+            // Launch the camera
+            takePictureLauncher.launch(takePictureIntent);
+        } catch (IOException e) {
+            Log.e(TAG, "Error creating image file", e);
+            Toast.makeText(requireContext(), "Failed to create image file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(requireContext(), "Camera permission required", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                galleryLauncher.launch(pickPhotoIntent);
+            } else {
+                Toast.makeText(requireContext(), "Storage permission required", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
 }
