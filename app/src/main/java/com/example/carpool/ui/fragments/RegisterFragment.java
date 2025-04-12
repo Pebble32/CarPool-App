@@ -231,6 +231,10 @@ public class RegisterFragment extends Fragment {
             Toast.makeText(getContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!email.trim().toLowerCase().endsWith("@hi.is")) {
+            Toast.makeText(getContext(), "Please provide an university email (@hi.is)", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Create a RegisterRequest object with the collected data
         RegisterRequest request = new RegisterRequest(email, password, firstname, lastname, phoneNumber, base64ProfilePicture);
