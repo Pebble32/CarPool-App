@@ -86,7 +86,9 @@ public class RideRequestsFragment extends Fragment implements RideRequestsAdapte
     public void onResume(){
         super.onResume();
         if (getActivity() instanceof MainActivity){
-            ((MainActivity) getActivity()).showBottomNav(true);
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.showBottomNav(true);
+            mainActivity.uncheckBottomNav();
         }
     }
 

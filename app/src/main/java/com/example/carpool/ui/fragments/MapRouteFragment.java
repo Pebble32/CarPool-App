@@ -1,5 +1,7 @@
 package com.example.carpool.ui.fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,9 +13,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.carpool.R;
+import com.example.carpool.data.api.DirectionsApiService;
+import com.example.carpool.data.models.DirectionsResponse;
 import com.example.carpool.ui.activities.MainActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,12 +33,18 @@ import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * MapRouteFragment displays a Google Map with the route between the ride's origin and destination.
@@ -51,6 +62,9 @@ public class MapRouteFragment extends Fragment implements OnMapReadyCallback {
     private PlacesClient placesClient;
     private LatLng startLatLng;
     private LatLng endLatLng;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
 
     /**
      * Creates a new instance of MapRouteFragment with the provided start and end locations.
@@ -91,7 +105,7 @@ public class MapRouteFragment extends Fragment implements OnMapReadyCallback {
 
         // Set up the toolbar
         MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
         // Hide bottom navigation if present
         if (getActivity() instanceof MainActivity) {
@@ -129,16 +143,39 @@ public class MapRouteFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE
+            );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (mMap != null) {
+                    enableMyLocation();
+                }
+            } else {
+                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "onMapReady called");
         mMap = googleMap;
 
-        try {
-            // Enable my location (permission should be checked in the parent activity)
-            mMap.setMyLocationEnabled(true);
-        } catch (SecurityException e) {
-            Log.e(TAG, "Error enabling my location: " + e.getMessage());
-        }
+        enableMyLocation();
 
         // Enable zoom controls and compass
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -276,83 +313,105 @@ public class MapRouteFragment extends Fragment implements OnMapReadyCallback {
 
                 // Animate camera with padding to show the entire route
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
-
-                // Calculate estimated distance and time
-                calculateEstimatedTime();
             } catch (Exception e) {
                 Log.e(TAG, "Error fitting map to markers: " + e.getMessage());
             }
         }
     }
 
-    private void calculateEstimatedTime() {
-        if (startLatLng != null && endLatLng != null) {
-            // Calculate Euclidean distance (as the crow flies)
-            double lat1 = startLatLng.latitude;
-            double lon1 = startLatLng.longitude;
-            double lat2 = endLatLng.latitude;
-            double lon2 = endLatLng.longitude;
-
-            // Calculate distance in kilometers
-            double earthRadius = 6371.0; // in kilometers
-            double dLat = Math.toRadians(lat2 - lat1);
-            double dLon = Math.toRadians(lon2 - lon1);
-            double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                            Math.sin(dLon/2) * Math.sin(dLon/2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            double distance = earthRadius * c;
-
-            // Estimate time based on average speed of 60 km/h
-            double timeInHours = distance / 60.0;
-            int hours = (int) timeInHours;
-            int minutes = (int) ((timeInHours - hours) * 60);
-
-            String estimatedTime = String.format("%.1f km ≈ %d h %d min",
-                    distance, hours, minutes);
-
-            textViewEstimatedTime.setText(estimatedTime);
-        }
-    }
-
     private void drawRoute() {
-        if (mMap == null || startLatLng == null || endLatLng == null) return;
+        if (startLatLng == null || endLatLng == null) return;
 
-        // In a real app, you would use the Directions API to get the actual route
-        // For this example, we draw a straight line with some intermediate points
+        String origin = startLatLng.latitude + "," + startLatLng.longitude;
+        String destination = endLatLng.latitude + "," + endLatLng.longitude;
+        String apiKey = getString(R.string.google_maps_key);
 
-        // Calculate a few intermediate points along the straight line
-        // This creates a slightly curved path for better visualization
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .add(startLatLng)
-                .width(8)
-                .color(Color.parseColor("#4285F4")); // Google Maps blue
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/maps/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-        // Add some intermediate points
-        double latDiff = endLatLng.latitude - startLatLng.latitude;
-        double lngDiff = endLatLng.longitude - startLatLng.longitude;
+        DirectionsApiService service = retrofit.create(DirectionsApiService.class);
+        Call<DirectionsResponse> call = service.getDirections(origin, destination, apiKey);
 
-        for (int i = 1; i <= 8; i++) {
-            double fraction = i / 10.0;
-            double lat = startLatLng.latitude + (latDiff * fraction);
-            double lng = startLatLng.longitude + (lngDiff * fraction);
+        call.enqueue(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<DirectionsResponse.Route> routes = response.body().routes;
+                    if (!routes.isEmpty()) {
+                        DirectionsResponse.Route route = routes.get(0);
+                        String encoded = route.overview_polyline.points;
+                        List<LatLng> path = decodePolyline(encoded);
 
-            // Add a slight curve
-            if (i > 1 && i < 8) {
-                double offset = Math.sin(fraction * Math.PI) * 0.005;
-                lat += offset;
+                        String distanceText = "";
+                        String durationText = "";
+                        if (route.legs != null && !route.legs.isEmpty()) {
+                            DirectionsResponse.Leg leg = route.legs.get(0);
+                            distanceText = leg.distance.text;
+                            durationText = leg.duration.text;
+                        }
+
+                        String displayTime = distanceText + " ≈ " + durationText;
+
+                        requireActivity().runOnUiThread(() -> {
+                            mMap.addPolyline(new PolylineOptions()
+                                    .addAll(path)
+                                    .color(Color.BLUE)
+                                    .width(10));
+                            fitMapToShowMarkers();
+
+                            textViewEstimatedTime.setText(displayTime);
+                        });
+                    }
+                } else {
+                    Log.e(TAG, "Directions API error: " + response.message());
+                }
             }
 
-            polylineOptions.add(new LatLng(lat, lng));
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                Log.e(TAG, "Directions API call failed: " + t.getMessage());
+            }
+        });
+    }
+
+    /***
+     * Decodes the polyline. Gotten from online.
+     *
+     * @param encoded data
+     * @return list of positions
+     */
+    public List<LatLng> decodePolyline(String encoded) {
+        List<LatLng> poly = new ArrayList<>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((lat / 1E5), (lng / 1E5));
+            poly.add(p);
         }
 
-        // Add the end point
-        polylineOptions.add(endLatLng);
-
-        mMap.addPolyline(polylineOptions);
-
-        // Fit the map to show the entire route
-        fitMapToShowMarkers();
+        return poly;
     }
 
     @Override

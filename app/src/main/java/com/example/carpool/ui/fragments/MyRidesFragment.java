@@ -74,7 +74,7 @@ public class MyRidesFragment extends Fragment {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
                 case 0:
-                    tab.setText("My Offerings");
+                    tab.setText("My Offers");
                     break;
                 case 1:
                     tab.setText("Rides Joined");

@@ -107,6 +107,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void uncheckBottomNav() {
+        bottomNavigationView.getMenu().setGroupCheckable(0, true, false);
+
+        for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
+            bottomNavigationView.getMenu().getItem(i).setChecked(false);
+        }
+
+        bottomNavigationView.getMenu().setGroupCheckable(0, true, true);
+    }
+
     /**
      * Public method to navigate to the main screen after login.
      * Sets the Browse tab as the default.

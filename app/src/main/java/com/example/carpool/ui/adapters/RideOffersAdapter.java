@@ -63,7 +63,8 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
         holder.availableSeats.setText("Available seats: " + offer.getAvailableSeats());
 
         // Always show the button layout
-        holder.buttonLayout.setVisibility(View.VISIBLE);
+        holder.buttonLayout1.setVisibility(View.VISIBLE);
+        holder.buttonLayout2.setVisibility(View.VISIBLE);
 
         // Check if the current user is the creator of the ride offer
         boolean isCreator = offer.getCreatorEmail() != null && offer.getCreatorEmail().equals(currentUserEmail);
@@ -108,7 +109,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView startLocation, endLocation, departureTime, availableSeats;
         Button editButton, deleteButton, joinButton, viewRequestsButton, routeButton;
-        LinearLayout buttonLayout;
+        LinearLayout buttonLayout1, buttonLayout2;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -121,7 +122,8 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Vi
             joinButton = itemView.findViewById(R.id.joinButton);
             viewRequestsButton = itemView.findViewById(R.id.viewRequestsButton);
             routeButton = itemView.findViewById(R.id.routeButton);
-            buttonLayout = itemView.findViewById(R.id.buttonLayout);
+            buttonLayout1 = itemView.findViewById(R.id.buttonLayout1);
+            buttonLayout2 = itemView.findViewById(R.id.buttonLayout2);
         }
     }
 }

@@ -19,12 +19,14 @@ import com.example.carpool.data.api.RetrofitClient;
 import com.example.carpool.data.api.RideOfferApi;
 import com.example.carpool.data.models.EditRideOfferRequest;
 import com.example.carpool.data.models.RideOfferResponse;
+import com.example.carpool.ui.activities.MainActivity;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,6 +103,16 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
         buttonEditDepartureTime.setOnClickListener(v -> onClickEditDepartureTime());
 
         return view;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (getActivity() instanceof MainActivity){
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.showBottomNav(true);
+            mainActivity.uncheckBottomNav();
+        }
     }
 
     private void populateFields(){
@@ -236,9 +248,10 @@ public class EditRideFragment extends Fragment implements DatePickerFragment.Dat
                 progressDialog.dismiss();
                 if(response.isSuccessful() && response.body() != null){
                     Toast.makeText(getContext(), "Ride offer updated successfully", Toast.LENGTH_SHORT).show();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new RideOffersFragment())
-                    .commit();
+                    (Objects.requireNonNull((MainActivity) getActivity())).changeFragment(R.id.nav_my_rides);
+                    /*getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new RideOffersFragment())
+                        .commit();*/
                 } else {
                     Toast.makeText(getContext(), "Failed to update ride offer", Toast.LENGTH_SHORT).show();
                 }

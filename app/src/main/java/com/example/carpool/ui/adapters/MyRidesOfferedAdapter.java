@@ -73,7 +73,8 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
         holder.availableSeats.setText(String.format("Available seats: %d", offer.getAvailableSeats()));
 
         // Configure buttons based on ride status
-        holder.buttonLayout.setVisibility(View.VISIBLE);
+        holder.buttonLayout1.setVisibility(View.VISIBLE);
+        holder.buttonLayout2.setVisibility(View.VISIBLE);
 
         // Always show Route button
         if (holder.routeButton != null) {
@@ -145,7 +146,7 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView startLocation, endLocation, departureTime, availableSeats;
         Button editButton, deleteButton, joinButton, viewRequestsButton, routeButton;
-        LinearLayout buttonLayout;
+        LinearLayout buttonLayout1, buttonLayout2;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -158,7 +159,8 @@ public class MyRidesOfferedAdapter extends RecyclerView.Adapter<MyRidesOfferedAd
             joinButton = itemView.findViewById(R.id.joinButton);
             viewRequestsButton = itemView.findViewById(R.id.viewRequestsButton);
             routeButton = itemView.findViewById(R.id.routeButton);
-            buttonLayout = itemView.findViewById(R.id.buttonLayout);
+            buttonLayout1 = itemView.findViewById(R.id.buttonLayout1);
+            buttonLayout2 = itemView.findViewById(R.id.buttonLayout2);
         }
     }
 }
