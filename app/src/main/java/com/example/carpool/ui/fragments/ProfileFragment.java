@@ -44,7 +44,6 @@ public class ProfileFragment extends Fragment {
     private ImageView imageViewProfilePicture;
     private TextView textViewUserName, textViewUserEmail;
     private Button buttonPersonalInformation;
-    private Button buttonNotifications;
     private AuthApi authApi;
     private UserApi userApi;
     private Retrofit retrofit;
@@ -65,7 +64,6 @@ public class ProfileFragment extends Fragment {
         textViewUserName = view.findViewById(R.id.textViewUserName);
         textViewUserEmail = view.findViewById(R.id.textViewUserEmail);
         buttonPersonalInformation = view.findViewById(R.id.buttonPersonalInformation);
-        buttonNotifications = view.findViewById(R.id.buttonNotifications);
 
         authApi = RetrofitClient.getInstance().create(AuthApi.class);
         userApi = RetrofitClient.getInstance().create(UserApi.class);
@@ -84,10 +82,6 @@ public class ProfileFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
 
-        });
-
-        buttonNotifications.setOnClickListener(v -> {
-            // Switch to NotificationsFragment
         });
 
         return view;
